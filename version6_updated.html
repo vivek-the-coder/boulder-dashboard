@@ -1,0 +1,3952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuyOut Command Center — Boulder Construction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1923;
+    --navy-2: #162232;
+    --navy-3: #1e3049;
+    --navy-4: #264060;
+    --slate: #f0f3f6;
+    --slate-2: #e4e9ee;
+    --slate-3: #c8d2dc;
+    --slate-4: #98aab8;
+    --text-primary: #0f1923;
+    --text-secondary: #4a6278;
+    --text-muted: #7a94a6;
+    --white: #ffffff;
+    --amber: #e8820c;
+    --amber-light: #fef3e2;
+    --amber-border: #f5c070;
+    --red: #c0392b;
+    --red-light: #fdf2f0;
+    --green: #1a7a4a;
+    --green-light: #eef8f3;
+    --blue: #1a5fa8;
+    --blue-light: #eef4fc;
+    --purple: #5a3e8c;
+    --purple-light: #f2eefb;
+    --teal: #0e7a7a;
+    --teal-light: #eef9f9;
+    --sidebar-w: 220px;
+    --detail-w: 480px;
+    --header-h: 56px;
+    --kpi-h: 110px;
+    --radius: 6px;
+    --radius-sm: 4px;
+    --shadow: 0 1px 4px rgba(15,25,35,0.10), 0 0 1px rgba(15,25,35,0.06);
+    --shadow-md: 0 4px 16px rgba(15,25,35,0.12), 0 1px 3px rgba(15,25,35,0.08);
+    --shadow-lg: 0 12px 40px rgba(15,25,35,0.18), 0 2px 8px rgba(15,25,35,0.10);
+    --border: #dce4eb;
+    --border-dark: #c2cfd9;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: var(--font); font-size: 14px; color: var(--text-primary); background: var(--slate); }
+
+  /* ===== LAYOUT ===== */
+  .app { display: grid; grid-template-rows: var(--header-h) 1fr; height: 100vh; }
+  .app-body { display: grid; grid-template-columns: var(--sidebar-w) 1fr; overflow: hidden; }
+  .main-area { display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ===== HEADER ===== */
+  header {
+    background: var(--navy);
+    display: flex; align-items: center; gap: 0;
+    padding: 0 20px 0 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    z-index: 100;
+    grid-column: 1 / -1;
+  }
+  .header-logo {
+    width: var(--sidebar-w);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 20px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    height: 100%;
+    flex-shrink: 0;
+  }
+  .header-logo .logo-mark {
+    width: 30px; height: 30px;
+    background: var(--amber);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+  .header-logo .logo-text { color: white; font-size: 13px; font-weight: 600; line-height: 1.2; }
+  .header-logo .logo-sub { color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 400; }
+  .header-center { flex: 1; display: flex; align-items: center; gap: 16px; padding: 0 24px; }
+  .project-select-wrap { position: relative; }
+  .project-select {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #ffffff; border-radius: var(--radius);
+    padding: 7px 32px 7px 12px;
+    font-family: var(--font); font-size: 13px; font-weight: 500;
+    appearance: none; cursor: pointer; min-width: 220px;
+  }
+  .project-select:focus { outline: none; border-color: var(--amber); }
+  .project-select option {
+    background: #1e3049;
+    color: #ffffff;
+    font-weight: 500;
+  }
+  .project-select-wrap::after {
+    content: '▾'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    color: rgba(255,255,255,0.4); pointer-events: none; font-size: 11px;
+  }
+  .header-search {
+    flex: 1; max-width: 340px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius);
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px;
+  }
+  .header-search input {
+    background: transparent; border: none; color: white; outline: none;
+    font-family: var(--font); font-size: 13px; width: 100%; padding: 7px 0;
+  }
+  .header-search input::placeholder { color: rgba(255,255,255,0.3); }
+  .search-icon { color: rgba(255,255,255,0.3); font-size: 14px; flex-shrink: 0; }
+  .header-right { display: flex; align-items: center; gap: 10px; position: relative; }
+  .avatar-menu {
+    position: absolute; right: 0; top: calc(100% + 8px);
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow-md);
+    width: 220px; z-index: 200; overflow: hidden;
+  }
+  .avatar-menu-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 14px 12px;
+  }
+  .avatar-menu-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--navy-3); color: white;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .avatar-menu-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .avatar-menu-role { font-size: 11px; color: var(--text-muted); margin-top: 1px; word-break: break-all; }
+  .avatar-menu-divider { height: 1px; background: var(--border); }
+  .avatar-menu-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 14px; font-size: 13px; color: var(--text-secondary);
+    cursor: pointer; transition: background 0.1s, color 0.1s;
+  }
+  .avatar-menu-item:hover { background: var(--slate); color: var(--text-primary); }
+  .avatar-menu-item.signout { color: var(--red); }
+  .avatar-menu-item.signout:hover { background: var(--red-light); color: var(--red); }
+  .header-btn {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); border-radius: var(--radius);
+    padding: 7px 14px; font-family: var(--font); font-size: 12px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .header-btn:hover { background: rgba(255,255,255,0.12); color: white; }
+  .header-btn.primary { background: var(--amber); border-color: var(--amber); color: white; }
+  .header-btn.primary:hover { background: #d4720a; border-color: #d4720a; }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--navy-3); border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8);
+    cursor: pointer; flex-shrink: 0;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    background: var(--navy-2);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+    padding: 12px 0;
+    transition: transform 0.25s ease;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+  .nav-section { margin-bottom: 6px; }
+  .nav-section-label {
+    padding: 8px 16px 4px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,255,255,0.28);
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px;
+    color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 400;
+    cursor: pointer; border-radius: 0;
+    transition: background 0.12s, color 0.12s;
+    position: relative;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+  .nav-item.active { background: rgba(232,130,12,0.12); color: var(--amber); font-weight: 500; }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--amber); border-radius: 0 2px 2px 0;
+  }
+  .nav-icon { font-size: 14px; opacity: 0.8; width: 16px; text-align: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .nav-icon svg { display: block; color: currentColor; }
+  .nav-badge {
+    margin-left: auto; background: var(--red);
+    color: white; font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 10px; font-family: var(--mono);
+  }
+  .nav-badge.amber { background: var(--amber); }
+  .nav-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 16px; }
+
+  /* ===== KPI ROW ===== */
+  .kpi-row {
+    display: flex; gap: 12px; padding: 16px 20px;
+    overflow-x: auto; flex-shrink: 0;
+  }
+  .kpi-row::-webkit-scrollbar { display: none; }
+  .kpi-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    flex: 1; min-width: 130px; max-width: 200px;
+    box-shadow: var(--shadow);
+    cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
+    position: relative; overflow: hidden;
+  }
+  .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--border-dark); }
+  .kpi-card.active { border-color: var(--amber); box-shadow: 0 0 0 2px rgba(232,130,12,0.15), var(--shadow); }
+  .kpi-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--border); border-radius: 0 0 var(--radius) var(--radius);
+    transition: background 0.15s;
+  }
+  .kpi-card.red::after { background: var(--red); }
+  .kpi-card.amber::after { background: var(--amber); }
+  .kpi-card.green::after { background: var(--green); }
+  .kpi-card.blue::after { background: var(--blue); }
+  .kpi-card.navy::after { background: var(--navy); }
+  .kpi-card.purple::after { background: var(--purple); }
+  .kpi-card.teal::after { background: var(--teal); }
+  .kpi-label { font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.01em; margin-bottom: 8px; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: var(--text-primary); font-family: var(--mono); line-height: 1; }
+  .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .kpi-card.red .kpi-value { color: var(--red); }
+  .kpi-card.amber .kpi-value { color: var(--amber); }
+  .kpi-card.green .kpi-value { color: var(--green); }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; flex-shrink: 0; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .toolbar-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-right: 4px; }
+  .toolbar-count {
+    font-size: 12px; color: var(--text-muted); background: var(--slate-2);
+    padding: 2px 8px; border-radius: 10px; font-family: var(--mono);
+  }
+  .toolbar-spacer { flex: 1; }
+  .filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  @media (max-width: 1060px) {
+    .filter-bar .filter-select:nth-child(n+3) { display: none; }
+  }
+  @media (max-width: 820px) {
+    .filter-bar .filter-select { display: none; }
+  }
+  .filter-select {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 5px 28px 5px 10px; font-family: var(--font); font-size: 12px;
+    color: var(--text-secondary); background: var(--white);
+    appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2398aab8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+    transition: border-color 0.12s;
+  }
+  .filter-select:focus { outline: none; border-color: var(--amber); }
+  .sort-btn {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 5px 10px; background: var(--white); color: var(--text-secondary);
+    font-size: 12px; cursor: pointer; font-family: var(--font);
+    transition: border-color 0.12s;
+  }
+  .sort-btn:hover { border-color: var(--border-dark); }
+  .btn-icon {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 5px 8px; background: var(--white); color: var(--text-secondary);
+    font-size: 13px; cursor: pointer;
+    transition: border-color 0.12s, color 0.12s;
+  }
+  .btn-icon:hover { border-color: var(--border-dark); color: var(--text-primary); }
+
+  /* ===== CONTENT AREA ===== */
+  .content-area {
+    display: flex; gap: 0; flex: 1; overflow: hidden;
+    padding: 0 0 0 0;
+  }
+
+  /* ===== BUYOUT TABLE ===== */
+  .buyout-list-wrap {
+    flex: 1; overflow: hidden; display: flex; flex-direction: column;
+    min-width: 0;
+  }
+  .buyout-table-container { flex: 1; overflow: auto; padding: 0 20px 16px 20px; }
+  .buyout-table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+  .buyout-table-container::-webkit-scrollbar-track { background: transparent; }
+  .buyout-table-container::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 6px; }
+
+  /* table min-width handled by new-csv-columns CSS block */
+  thead th {
+    background: var(--white); border-bottom: 2px solid var(--border);
+    border-top: 1px solid var(--border);
+    padding: 9px 12px;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    text-align: left; white-space: nowrap;
+    position: sticky; top: 0; z-index: 10; cursor: pointer;
+    user-select: none;
+  }
+  thead th:first-child { padding-left: 16px; border-radius: var(--radius) 0 0 0; }
+  thead th:last-child { border-radius: 0 var(--radius) 0 0; }
+  thead th:hover { color: var(--text-primary); }
+  thead th .sort-arrow { margin-left: 4px; opacity: 0.4; font-size: 10px; }
+  thead th.sorted .sort-arrow { opacity: 1; color: var(--amber); }
+
+  tbody tr {
+    background: var(--white);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: #f7fafc; }
+  tbody tr.selected { background: #fef8f0 !important; }
+  tbody tr.overdue-row { background: #fdf5f4 !important; }
+  tbody tr.overdue-row:hover { background: #faf0ee !important; }
+  tbody tr.selected.overdue-row { background: #fef5f0 !important; }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; color: var(--text-primary);
+    vertical-align: middle; white-space: nowrap;
+  }
+  td:first-child { padding-left: 16px; }
+  td:last-child { padding-right: 16px; }
+
+  .pkg-name { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .pkg-csi { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+  .pkg-longalert { 
+    background: var(--purple-light); color: var(--purple); 
+    font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px; 
+    border: 1px solid rgba(90,62,140,0.2); letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  /* STATUS BADGES */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+  .status-badge::before { content: '●'; font-size: 7px; }
+  .s-not-started { background: var(--slate-2); color: var(--text-secondary); }
+  .s-bidding { background: var(--blue-light); color: var(--blue); }
+  .s-reviewing { background: var(--teal-light); color: var(--teal); }
+  .s-leveling { background: #eef7ff; color: #1460a0; }
+  .s-negotiating { background: var(--purple-light); color: var(--purple); }
+  .s-pending { background: var(--amber-light); color: #b5600a; }
+  .s-ready { background: #e8f7ee; color: #15673c; }
+  .s-awarded { background: var(--green-light); color: var(--green); }
+  .s-contract { background: #e4f0fa; color: #1a5fa8; }
+  .s-executed { background: #e8f5f0; color: #136040; }
+  .s-hold { background: #f4f4f4; color: #888; }
+  .s-overdue { background: var(--red-light); color: var(--red); }
+
+  /* PRIORITY */
+  .priority-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    display: inline-block;
+  }
+  .p-critical { background: var(--red); }
+  .p-high { background: var(--amber); }
+  .p-medium { background: #3b82f6; }
+  .p-low { background: var(--slate-3); }
+
+  /* COVERAGE */
+  .coverage-bar {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .coverage-dots { display: flex; gap: 3px; }
+  .cdot {
+    width: 10px; height: 10px; border-radius: 2px;
+  }
+  .cdot.filled { background: var(--navy-3); }
+  .cdot.empty { background: var(--slate-2); border: 1px solid var(--border); }
+  .cdot.warn { background: var(--amber); }
+  .coverage-num { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); }
+
+  /* AMOUNT */
+  .amount-cell { font-family: var(--mono); font-size: 12px; color: var(--text-primary); }
+  .amount-budget { color: var(--text-muted); font-size: 11px; display: block; }
+
+  /* DATE */
+  .date-cell { font-family: var(--mono); font-size: 12px; }
+  .date-overdue { color: var(--red); font-weight: 600; }
+  .date-soon { color: var(--amber); font-weight: 600; }
+  .date-ok { color: var(--text-secondary); }
+
+  /* RISK */
+  .risk-badge {
+    font-size: 11px; font-weight: 600; padding: 2px 7px;
+    border-radius: 3px; font-family: var(--mono);
+  }
+  .r-high { background: var(--red-light); color: var(--red); }
+  .r-medium { background: var(--amber-light); color: #b5600a; }
+  .r-low { background: var(--green-light); color: var(--green); }
+
+  /* ===== DETAIL PANEL ===== */
+  .detail-panel {
+    width: var(--detail-w); background: var(--slate);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden; flex-shrink: 0;
+    transition: transform 0.25s ease, width 0.25s ease;
+    box-shadow: -4px 0 24px rgba(15,25,35,0.09);
+  }
+  .detail-panel.hidden { transform: translateX(100%); width: 0; overflow: hidden; padding: 0; }
+
+  /* HEADER */
+  .detail-header {
+    background: var(--navy);
+    padding: 16px 18px 14px;
+    flex-shrink: 0;
+  }
+  .detail-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .detail-pkg-name { font-size: 16px; font-weight: 700; color: white; line-height: 1.3; }
+  .detail-pkg-sub { font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 3px; letter-spacing: 0.01em; }
+  .detail-close {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.5); width: 30px; height: 30px;
+    border-radius: 6px; cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.12s;
+  }
+  .detail-close:hover { background: rgba(255,255,255,0.14); color: white; }
+
+  /* STATUS ROW — replaces meta chips */
+  .detail-status-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .dsr-status {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px;
+    letter-spacing: 0.01em;
+  }
+  .dsr-status.s-not-started { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); }
+  .dsr-status.s-bidding     { background: rgba(26,95,168,0.25); color: #7eb8ff; }
+  .dsr-status.s-reviewing   { background: rgba(14,122,122,0.25); color: #5dd4d4; }
+  .dsr-status.s-leveling    { background: rgba(20,96,160,0.25); color: #7eb8ff; }
+  .dsr-status.s-negotiating { background: rgba(90,62,140,0.25); color: #c4a8ff; }
+  .dsr-status.s-pending     { background: rgba(232,130,12,0.2); color: var(--amber); }
+  .dsr-status.s-ready       { background: rgba(26,122,74,0.25); color: #5dd494; }
+  .dsr-status.s-awarded     { background: rgba(26,122,74,0.3); color: #4ecb84; }
+  .dsr-status.s-contract    { background: rgba(26,95,168,0.25); color: #7eb8ff; }
+  .dsr-status.s-executed    { background: rgba(26,122,74,0.3); color: #4ecb84; }
+  .dsr-status.s-hold        { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.4); }
+  .dsr-status.s-overdue     { background: rgba(192,57,43,0.25); color: #ff8070; }
+  .dsr-pill {
+    font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px;
+    white-space: nowrap;
+  }
+  .dsr-pill.red   { background: rgba(192,57,43,0.22); color: #ff8070; }
+  .dsr-pill.amber { background: rgba(232,130,12,0.2); color: var(--amber); }
+  .dsr-pill.green { background: rgba(26,122,74,0.22); color: #5dd494; }
+  .dsr-pill.muted { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); }
+
+  /* KPI STRIP */
+  .detail-kpi-strip {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 12px;
+  }
+  .dkpi {
+    padding: 10px 0 8px; text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .dkpi:last-child { border-right: none; }
+  .dkpi-val { font-size: 17px; font-weight: 700; color: white; font-family: var(--mono); line-height: 1; }
+  .dkpi-val.green { color: #5dd494; }
+  .dkpi-val.red   { color: #ff8070; }
+  .dkpi-val.amber { color: var(--amber); }
+  .dkpi-label { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+  /* TABS */
+  .detail-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    background: var(--white); flex-shrink: 0; overflow-x: auto;
+  }
+  .detail-tabs::-webkit-scrollbar { display: none; }
+  .dtab {
+    padding: 9px 14px; font-size: 12px; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; white-space: nowrap;
+    border-bottom: 2px solid transparent; transition: color 0.12s, border-color 0.12s;
+    flex: 1; text-align: center;
+  }
+  .dtab:hover { color: var(--text-primary); }
+  .dtab.active { color: var(--amber); border-bottom-color: var(--amber); font-weight: 700; background: var(--amber-light); }
+  .dtab-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--slate-2); color: var(--text-muted);
+    font-size: 10px; font-weight: 700; font-family: var(--mono);
+    min-width: 16px; height: 16px; border-radius: 8px; padding: 0 4px;
+    margin-left: 4px; vertical-align: middle; line-height: 1;
+  }
+  .dtab.active .dtab-count { background: rgba(232,130,12,0.18); color: var(--amber); }
+
+  .detail-body { flex: 1; overflow-y: auto; padding: 0; background: var(--slate); }
+  .detail-body::-webkit-scrollbar { width: 5px; }
+  .detail-body::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+
+  /* CARDS inside panel */
+  .dp-card {
+    background: var(--white); border-radius: var(--radius);
+    border: 1px solid var(--border); margin: 12px 14px;
+    overflow: hidden;
+  }
+  .dp-card-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); padding: 10px 14px 0;
+  }
+  .dp-card + .dp-card { margin-top: 0; }
+
+  /* Stat row (budget / bid / variance) */
+  .dp-stat-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .dp-stat {
+    padding: 12px 14px; border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .dp-stat:last-child { border-right: none; }
+  .dp-stat-val { font-size: 16px; font-weight: 700; font-family: var(--mono); color: var(--text-primary); line-height: 1; }
+  .dp-stat-val.green { color: var(--green); }
+  .dp-stat-val.red   { color: var(--red); }
+  .dp-stat-val.amber { color: var(--amber); }
+  .dp-stat-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Info rows */
+  .dp-info-row {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 9px 14px; border-bottom: 1px solid var(--border); gap: 10px;
+  }
+  .dp-info-row:last-child { border-bottom: none; }
+  .dp-info-label { font-size: 11px; color: var(--text-muted); font-weight: 500; flex-shrink: 0; min-width: 100px; }
+  .dp-info-val { font-size: 12px; color: var(--text-primary); font-weight: 600; text-align: right; }
+  .dp-info-val.mono { font-family: var(--mono); }
+  .dp-info-val.green { color: var(--green); }
+  .dp-info-val.amber { color: var(--amber); }
+  .dp-info-val.red   { color: var(--red); }
+  .dp-info-val.muted { color: var(--text-muted); font-weight: 400; }
+
+  /* Alert banner */
+  .dp-alert {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; border-radius: var(--radius);
+    margin: 12px 14px 0;
+    font-size: 12px; line-height: 1.5;
+  }
+  .dp-alert.red    { background: var(--red-light); border: 1px solid rgba(192,57,43,0.2); color: var(--red); }
+  .dp-alert.amber  { background: var(--amber-light); border: 1px solid rgba(232,130,12,0.2); color: #b5600a; }
+  .dp-alert.green  { background: var(--green-light); border: 1px solid rgba(26,122,74,0.2); color: var(--green); }
+  .dp-alert-icon   { font-size: 14px; flex-shrink: 0; margin-top: 0px; }
+  .dp-alert-body   {}
+  .dp-alert-title  { font-weight: 700; margin-bottom: 2px; }
+  .dp-alert-desc   { opacity: 0.85; }
+
+  /* Notes inside card */
+  .dp-notes-text {
+    padding: 10px 14px 12px;
+    font-size: 12px; color: var(--text-secondary); line-height: 1.65;
+  }
+
+  /* BID COMPARISON */
+  .bid-comparison { padding: 0; }
+  .bid-summary-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--white);
+    border-radius: var(--radius); margin: 12px 14px 0;
+    border: 1px solid var(--border);
+  }
+  .bid-summary-left { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .bid-summary-sub  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .bid-cov-badge {
+    font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 4px;
+  }
+  .bid-cov-badge.ok      { background: var(--green-light); color: var(--green); border: 1px solid rgba(26,122,74,0.2); }
+  .bid-cov-badge.warning { background: var(--amber-light); color: #b5600a; border: 1px solid var(--amber-border); }
+
+  .bid-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+    margin: 8px 14px 0; overflow: hidden;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .bid-card:last-of-type { margin-bottom: 12px; }
+  .bid-card:hover { box-shadow: var(--shadow); }
+  .bid-card.recommended { border-color: var(--green); border-width: 2px; }
+  .bid-card.excluded { opacity: 0.55; }
+  .bid-card-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: var(--slate);
+    cursor: pointer; user-select: none;
+  }
+  .bid-rank {
+    width: 22px; height: 22px; border-radius: 4px;
+    background: var(--navy-3); color: white;
+    font-size: 11px; font-weight: 700; font-family: var(--mono);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .bid-rank.rank-1  { background: var(--amber); }
+  .bid-rank.rank-ex { background: var(--red); }
+  .bid-vendor { font-weight: 700; font-size: 13px; flex: 1; color: var(--text-primary); }
+  .bid-amount { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .bid-vs-budget { font-size: 11px; font-family: var(--mono); padding: 2px 6px; border-radius: 3px; }
+  .bid-under { background: var(--green-light); color: var(--green); }
+  .bid-over  { background: var(--red-light); color: var(--red); }
+  .bid-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .bid-tag.recommended { background: var(--green-light); color: var(--green); }
+  .bid-tag.backup      { background: var(--blue-light); color: var(--blue); }
+  .bid-tag.excluded    { background: var(--red-light); color: var(--red); }
+  .bid-tag.preferred   { background: var(--amber-light); color: #b5600a; }
+  .bid-tag.pending     { background: var(--slate-2); color: var(--text-muted); }
+  .bid-chevron { font-size: 10px; color: var(--text-muted); flex-shrink: 0; transition: transform 0.15s; }
+  .bid-chevron.open { transform: rotate(180deg); }
+
+  .bid-card-body { display: none; border-top: 1px solid var(--border); }
+  .bid-card-body.expanded { display: block; }
+  .bid-detail-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .bid-detail-item {
+    padding: 9px 12px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .bid-detail-item:nth-child(2n) { border-right: none; }
+  .bid-detail-item.full { grid-column: 1 / -1; border-right: none; }
+  .bid-detail-item:last-child, .bid-detail-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+  .bid-detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 3px; }
+  .bid-detail-val { font-size: 12px; color: var(--text-primary); line-height: 1.5; }
+  .bid-detail-val.green  { color: var(--green); font-weight: 600; }
+  .bid-detail-val.amber  { color: var(--amber); font-weight: 600; }
+  .bid-detail-val.red    { color: var(--red); font-weight: 600; }
+  .bid-detail-actions { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--slate); }
+  .bid-action-btn {
+    font-size: 11px; font-weight: 600; padding: 5px 12px;
+    border-radius: 4px; cursor: pointer; font-family: var(--font); border: 1px solid;
+    transition: opacity 0.1s;
+  }
+  .bid-action-btn:hover { opacity: 0.8; }
+  .bid-action-btn.recommend { border-color: var(--green); color: var(--green); background: var(--green-light); }
+  .bid-action-btn.exclude   { border-color: var(--border); color: var(--text-muted); background: var(--white); }
+
+  /* CONTRACT PROGRESS */
+  .dp-contract-steps { padding: 14px 14px 6px; }
+  .dp-step-list { display: flex; flex-direction: column; gap: 0; }
+  .dp-step-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    position: relative; padding-bottom: 14px;
+  }
+  .dp-step-item:last-child { padding-bottom: 0; }
+  .dp-step-icon-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .dp-step-icon {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    border: 2px solid var(--border); background: var(--slate-2); color: var(--text-muted);
+  }
+  .dp-step-icon.done   { background: var(--green); border-color: var(--green); color: white; }
+  .dp-step-icon.active { background: var(--amber); border-color: var(--amber); color: white; }
+  .dp-step-line {
+    width: 2px; flex: 1; min-height: 14px;
+    background: var(--border); margin-top: 2px;
+  }
+  .dp-step-line.done { background: var(--green); }
+  .dp-step-item:last-child .dp-step-line { display: none; }
+  .dp-step-content { padding-top: 2px; flex: 1; }
+  .dp-step-name { font-size: 12px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+  .dp-step-name.done   { color: var(--green); }
+  .dp-step-name.active { color: var(--amber); }
+  .dp-step-name.future { color: var(--text-muted); font-weight: 400; }
+  .dp-step-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+
+  /* NOTES */
+  .dp-notes-area { padding: 0 14px 12px; }
+  .dp-note-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .dp-note-item:last-of-type { border-bottom: none; }
+  .dp-note-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--navy-3); color: white;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .dp-note-body { flex: 1; }
+  .dp-note-top { display: flex; align-items: baseline; gap: 6px; margin-bottom: 3px; }
+  .dp-note-author { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .dp-note-time { font-size: 10px; color: var(--text-muted); }
+  .dp-note-text { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+  .dp-add-note { margin-top: 10px; }
+  .dp-note-input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px 10px; font-family: var(--font); font-size: 12px;
+    color: var(--text-primary); outline: none; resize: none; height: 58px;
+    transition: border-color 0.12s; background: var(--white);
+  }
+  .dp-note-input:focus { border-color: var(--amber); }
+  .dp-note-submit {
+    margin-top: 6px; background: var(--amber); color: white; border: none;
+    border-radius: var(--radius); padding: 7px 16px;
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .dp-note-submit:hover { background: #d4720a; }
+
+  /* STATUS CHANGE BAR */
+  .status-action-bar {
+    padding: 10px 14px; border-top: 1px solid var(--border);
+    background: var(--white); display: flex; gap: 8px; flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .status-action-btn {
+    font-size: 12px; font-weight: 600; padding: 6px 14px;
+    border-radius: var(--radius); cursor: pointer;
+    border: 1px solid var(--border); background: var(--slate);
+    color: var(--text-secondary); font-family: var(--font);
+    transition: all 0.12s;
+  }
+  .status-action-btn:hover { border-color: var(--border-dark); color: var(--text-primary); background: var(--slate-2); }
+  .status-action-btn.primary { background: var(--amber); border-color: var(--amber); color: white; }
+  .status-action-btn.primary:hover { background: #d4720a; }
+  .status-action-btn.green { background: var(--green); border-color: var(--green); color: white; }
+  .status-action-btn.green:hover { background: #157040; }
+
+  /* ds-title kept for compat with contract/notes old refs */
+  .ds-title { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .detail-section { padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--white); margin: 0 14px 8px; border-radius: var(--radius); border: 1px solid var(--border); }
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field-item {}
+  .field-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .field-value { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+  .field-value.mono { font-family: var(--mono); }
+  .field-value.large { font-size: 17px; font-weight: 700; }
+  .field-value.muted { color: var(--text-muted); font-weight: 400; }
+  /* keep old bid-complete-badge / bid-row for compat */
+  .bid-complete-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+  .bid-complete-badge.yes { color: var(--green); }
+  .bid-complete-badge.no  { color: var(--red); }
+  .bid-complete-badge.partial { color: var(--amber); }
+  .bid-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: flex-start; }
+  .bid-row-label { font-size: 11px; font-weight: 600; color: var(--text-muted); min-width: 90px; flex-shrink: 0; padding-top: 1px; }
+  .bid-row-val { font-size: 12px; color: var(--text-primary); line-height: 1.5; }
+  .bid-row-val.green { color: var(--green); }
+  .bid-row-val.amber { color: var(--amber); }
+  /* contract-progress kept for compat */
+  .contract-progress { padding: 12px 14px; }
+  .progress-steps { display: flex; }
+  .progress-step { flex: 1; text-align: center; position: relative; font-size: 10px; font-weight: 600; color: var(--text-muted); padding-top: 26px; }
+  .progress-step::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 14px; height: 14px; border-radius: 50%; background: var(--slate-2); border: 2px solid var(--border); z-index: 1; }
+  .progress-step::after { content: ''; position: absolute; top: 14px; left: 50%; width: 100%; height: 2px; background: var(--border); }
+  .progress-step:last-child::after { display: none; }
+  .progress-step.done { color: var(--green); }
+  .progress-step.done::before { background: var(--green); border-color: var(--green); }
+  .progress-step.active { color: var(--amber); }
+  .progress-step.active::before { background: var(--amber); border-color: var(--amber); }
+  /* award-bar kept */
+  .award-bar { background: linear-gradient(135deg, var(--green) 0%, #1d9b60 100%); color: white; padding: 10px 14px; border-radius: var(--radius); margin: 12px 14px 0; display: flex; align-items: center; gap: 10px; }
+  .award-bar .award-icon { font-size: 16px; }
+  .award-bar .award-text { flex: 1; }
+  .award-bar .award-vendor { font-weight: 700; font-size: 13px; }
+  .award-bar .award-amount { font-family: var(--mono); font-size: 12px; opacity: 0.85; margin-top: 1px; }
+  .award-bar .award-badge { background: rgba(255,255,255,0.2); color: white; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+  /* notes-area kept for compat */
+  .notes-area { padding: 12px 14px; }
+  .note-item { display: flex; gap: 10px; margin-bottom: 12px; }
+  .note-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--navy-3); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .note-content { flex: 1; }
+  .note-author { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .note-time { font-size: 11px; color: var(--text-muted); margin-left: 6px; }
+  .note-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+  .note-input-wrap { display: flex; gap: 8px; align-items: flex-end; }
+  .note-input { flex: 1; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; font-family: var(--font); font-size: 12px; color: var(--text-primary); outline: none; resize: none; height: 58px; transition: border-color 0.12s; }
+  .note-input:focus { border-color: var(--amber); }
+  .note-send-btn { background: var(--amber); color: white; border: none; border-radius: var(--radius); padding: 8px 14px; font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; }
+  /* risk-item kept */
+  .risk-item { display: flex; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; background: var(--slate); }
+  .risk-icon { font-size: 14px; flex-shrink: 0; }
+  .risk-label { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .risk-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+
+  /* MOBILE OVERLAY */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,25,35,0.5); z-index: 200;
+    pointer-events: none;
+  }
+  .sidebar-overlay.hidden { pointer-events: none; }
+  .sidebar-overlay:not(.hidden) { pointer-events: auto; }
+  .mobile-menu-btn {
+    display: none; background: none; border: none;
+    color: rgba(255,255,255,0.7); font-size: 18px; cursor: pointer;
+    padding: 0 4px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px; color: var(--text-muted); gap: 8px;
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 8px; opacity: 0.4; color: var(--text-muted); }
+  .empty-state p { font-size: 14px; font-weight: 500; }
+  .empty-state small { font-size: 12px; }
+
+  /* AWARD HIGHLIGHT */
+  .award-bar {
+    background: linear-gradient(135deg, var(--green) 0%, #1d9b60 100%);
+    color: white; padding: 10px 20px; border-radius: var(--radius);
+    margin: 12px 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .award-bar .award-icon { font-size: 18px; display: flex; align-items: center; }
+  .award-bar .award-text { flex: 1; }
+  .award-bar .award-vendor { font-weight: 700; font-size: 14px; }
+  .award-bar .award-amount { font-family: var(--mono); font-size: 13px; opacity: 0.85; margin-top: 2px; }
+  .award-bar .award-badge {
+    background: rgba(255,255,255,0.2); color: white;
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px;
+  }
+
+  /* TABS PANEL */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1100px) {
+    :root { --detail-w: 420px; }
+  }
+  @media (max-width: 900px) {
+    .app-body { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed; left: 0; top: var(--header-h); bottom: 0;
+      z-index: 201; transform: translateX(-100%);
+      width: 240px;
+    }
+    .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+    .sidebar-overlay { display: block; }
+    .mobile-menu-btn { display: block; }
+    .header-logo { width: auto; padding: 0 16px; gap: 8px; }
+    .header-logo .logo-text, .header-logo .logo-sub { display: none; }
+    .kpi-card { min-width: 110px; }
+    .detail-panel {
+      position: fixed; right: 0; top: var(--header-h); bottom: 0;
+      z-index: 201; width: 90vw; max-width: 480px;
+    }
+    .detail-panel.hidden { transform: translateX(100%); width: 90vw; }
+  }
+  @media (max-width: 600px) {
+    :root { --sidebar-w: 0px; }
+    .kpi-row { gap: 8px; padding: 12px 12px 0; }
+    .kpi-card { min-width: 100px; padding: 10px 12px; }
+    .kpi-value { font-size: 22px; }
+    .toolbar { padding: 10px 12px 8px; gap: 6px; }
+    .buyout-table-container { padding: 0 0 12px 12px; }
+    table { min-width: 700px; }
+    .filter-bar { gap: 6px; }
+    .filter-select { font-size: 11px; }
+  }
+
+  /* UTIL */
+  .hidden { display: none !important; }
+  .flex { display: flex; }
+  .gap-4 { gap: 4px; }
+  .gap-8 { gap: 8px; }
+  .items-center { align-items: center; }
+  .font-mono { font-family: var(--mono); }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
+
+  /* ===== NEW CSV COLUMNS ===== */
+  .order-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--text-muted); background: var(--slate-2);
+    padding: 2px 7px; border-radius: 4px;
+  }
+  .trade-pill {
+    font-size: 11px; font-weight: 600; padding: 3px 8px;
+    border-radius: 10px; background: var(--blue-light); color: var(--blue);
+    white-space: nowrap;
+  }
+  .bids-cell { display: flex; flex-direction: column; gap: 4px; }
+  .bids-count {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--text-primary);
+  }
+  .bid-pills { display: flex; flex-direction: column; gap: 2px; }
+  .bid-vendor-pill {
+    font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;
+    display: block;
+  }
+  .bid-vendor-pill.recommended { background: var(--green-light); color: var(--green); }
+  .bid-vendor-pill.backup      { background: var(--blue-light); color: var(--blue); }
+  .bid-vendor-pill.pending     { background: var(--slate-2); color: var(--text-muted); }
+  .bid-vendor-pill.excluded    { background: var(--red-light); color: var(--red); }
+  .no-bids-tag { font-size: 11px; color: var(--text-muted); font-style: italic; }
+  .dropbox-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; color: var(--blue);
+    cursor: pointer; text-decoration: none;
+    padding: 3px 7px; border-radius: 4px; background: var(--blue-light);
+    border: 1px solid rgba(26,95,168,0.15);
+    transition: background 0.12s;
+    max-width: 130px;
+  }
+  .dropbox-link:hover { background: rgba(26,95,168,0.12); }
+  .dropbox-link svg { flex-shrink: 0; fill: var(--blue); }
+  .warranty-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 8px;
+    border-radius: 10px; background: var(--teal-light); color: var(--teal);
+    white-space: nowrap;
+  }
+  .vendor-data-cell {
+    font-size: 11px; color: var(--text-secondary);
+    display: block; max-width: 140px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .detail-dropbox-link {
+    color: var(--blue); cursor: pointer; font-weight: 600;
+    text-decoration: none;
+  }
+  .detail-dropbox-link:hover { text-decoration: underline; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 820px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- HEADER -->
+  <header>
+    <div class="header-logo">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+      <div class="logo-mark">BC</div>
+      <div>
+        <div class="logo-text">Boulder Construction</div>
+        <div class="logo-sub">Buyout Command Center</div>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="project-select-wrap">
+        <select class="project-select" id="globalProjectFilter" onchange="applyGlobalProjectFilter()">
+          <option value="all">All Projects</option>
+          <option value="Kimpton Plano">Kimpton Plano — 160-Key Hotel</option>
+          <option value="Guestroom Tower">Guestroom Tower</option>
+          <option value="Podium Lobby">Podium / Lobby / BOH</option>
+        </select>
+      </div>
+      <div class="header-search">
+        <span class="search-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6" r="4.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><path d="M9.5 9.5L12.5 12.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <input type="text" placeholder="Search packages, vendors, trades…" id="searchInput" oninput="applyFilters()">
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" onclick="showAddPackageAlert()">+ New Package</button>
+      <button class="header-btn primary" onclick="exportData()">↓ Export</button>
+      <div class="avatar" id="avatarBtn" onclick="toggleAvatarMenu()">??</div>
+      <div class="avatar-menu hidden" id="avatarMenu">
+        <div class="avatar-menu-header">
+          <div class="avatar-menu-avatar" id="amAvatar">??</div>
+          <div>
+            <div class="avatar-menu-name" id="amName">—</div>
+            <div class="avatar-menu-role" id="amEmail">—</div>
+          </div>
+        </div>
+        <div class="avatar-menu-divider"></div>
+        <div class="avatar-menu-item" onclick="openProfileModal()">👤 My Profile</div>
+        <div class="avatar-menu-item" onclick="openChangePasswordModal()">🔒 Change Password</div>
+        <div class="avatar-menu-divider"></div>
+        <div class="avatar-menu-item signout" onclick="doSignOut()">↩ Sign Out</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="nav-section">
+        <div class="nav-section-label">Dashboard</div>
+        <div class="nav-item active" data-view="all" onclick="setView(this, 'all')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="currentColor" opacity="0.7"/><rect x="8" y="1" width="5" height="5" rx="1" fill="currentColor" opacity="0.7"/><rect x="1" y="8" width="5" height="5" rx="1" fill="currentColor" opacity="0.7"/><rect x="8" y="8" width="5" height="5" rx="1" fill="currentColor" opacity="0.7"/></svg></span> All Buyouts
+        </div>
+        <div class="nav-item" data-view="urgent" onclick="setView(this, 'urgent')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 12H1L7 1Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 5.5V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10" r="0.6" fill="currentColor"/></svg></span> Urgent / Focus
+          <span class="nav-badge" id="badge-urgent">4</span>
+        </div>
+        <div class="nav-item" data-view="overdue" onclick="setView(this, 'overdue')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 4V7.5L9 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span> Overdue
+          <span class="nav-badge" id="badge-overdue">3</span>
+        </div>
+        <div class="nav-item" data-view="this-week" onclick="setView(this, 'this-week')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6H12.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 1V3.5M9.5 1V3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span> Due This Week
+        </div>
+        <div class="nav-item" data-view="upcoming" onclick="setView(this, 'upcoming')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L7 2L12 12" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 9H10" stroke="currentColor" stroke-width="1.4"/></svg></span> Upcoming
+        </div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">
+        <div class="nav-section-label">By Status</div>
+        <div class="nav-item" data-view="ready-award" onclick="setView(this, 'ready-award')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 7L6.5 9L9.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Ready to Award
+          <span class="nav-badge amber" id="badge-ready">2</span>
+        </div>
+        <div class="nav-item" data-view="awarded" onclick="setView(this, 'awarded')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L8.5 5H13L9.5 7.5L11 11.5L7 9L3 11.5L4.5 7.5L1 5H5.5L7 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span> Awarded
+        </div>
+        <div class="nav-item" data-view="executed" onclick="setView(this, 'executed')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2H9L11 4V12H3V2Z" stroke="currentColor" stroke-width="1.4"/><path d="M9 2V4H11" stroke="currentColor" stroke-width="1.4"/><path d="M5 7H9M5 9H7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span> Executed
+        </div>
+        <div class="nav-item" data-view="bidding" onclick="setView(this, 'bidding')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10L5 7L7 9L11 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 4H11V6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span> Bidding
+        </div>
+        <div class="nav-item" data-view="on-hold" onclick="setView(this, 'on-hold')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3.5" y="2" width="2.5" height="10" rx="1" fill="currentColor" opacity="0.7"/><rect x="8" y="2" width="2.5" height="10" rx="1" fill="currentColor" opacity="0.7"/></svg></span> On Hold
+        </div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">
+        <div class="nav-section-label">Analysis</div>
+        <div class="nav-item" data-view="long-lead" onclick="setView(this, 'long-lead')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 3V7L9.5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span> Long Lead
+        </div>
+        <div class="nav-item" data-view="missing-coverage" onclick="setView(this, 'missing-coverage')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 12H1L7 1Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 5.5V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10" r="0.6" fill="currentColor"/></svg></span> Missing Coverage
+        </div>
+        <div class="nav-item" data-view="high-risk" onclick="setView(this, 'high-risk')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2C7 2 3 5 3 8.5C3 10.4 4.8 12 7 12C9.2 12 11 10.4 11 8.5C11 5 7 2 7 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></span> High Risk
+        </div>
+        <div class="nav-item" data-view="contract-pending" onclick="setView(this, 'contract-pending')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2H9L11 4V12H3V2Z" stroke="currentColor" stroke-width="1.4"/><path d="M5 7H9M5 9H7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M9 2V4H11" stroke="currentColor" stroke-width="1.4"/></svg></span> Contract Pending
+        </div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">
+        <div class="nav-section-label">Group By</div>
+        <div class="nav-item" data-view="by-project" onclick="setView(this, 'by-project')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="4" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="4" width="4" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="1" width="3" height="12" rx="1" stroke="currentColor" stroke-width="1.3"/></svg></span> By Project
+        </div>
+        <div class="nav-item" data-view="by-pm" onclick="setView(this, 'by-pm')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 12C2 9.8 4.2 8 7 8C9.8 8 12 9.8 12 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span> By PM
+        </div>
+        <div class="nav-item" data-view="by-trade" onclick="setView(this, 'by-trade')">
+          <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.5V4M7 10V12.5M1.5 7H4M10 7H12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span> By Trade
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-overlay hidden" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- MAIN AREA -->
+    <div class="main-area">
+      <!-- KPI ROW -->
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <span class="toolbar-title" id="viewTitle">All Buyouts</span>
+        <span class="toolbar-count" id="rowCount">— packages</span>
+        <div class="toolbar-spacer"></div>
+        <div class="filter-bar">
+          <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+            <option value="">All Statuses</option>
+            <option>Not Started</option>
+            <option>Bidding</option>
+            <option>Reviewing Bids</option>
+            <option>Scope Leveling</option>
+            <option>Negotiating</option>
+            <option>Pending Decision</option>
+            <option>Ready to Award</option>
+            <option>Awarded</option>
+            <option>Contract Out</option>
+            <option>Executed</option>
+            <option>On Hold</option>
+            <option>Overdue</option>
+          </select>
+          <select class="filter-select" id="filterPriority" onchange="applyFilters()">
+            <option value="">All Priorities</option>
+            <option>Critical</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <select class="filter-select" id="filterPM" onchange="applyFilters()">
+            <option value="">All PMs</option>
+            <option>Jay Patel</option>
+            <option>Rush Patel</option>
+            <option>Uma Patel</option>
+            <option>Mike Torres</option>
+          </select>
+          <select class="filter-select" id="filterRisk" onchange="applyFilters()">
+            <option value="">All Risk</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <button class="sort-btn" onclick="toggleSort()">Sort ↕ <span id="sortLabel">Due Date</span></button>
+          <button class="btn-icon" title="Reset filters" onclick="resetFilters()">✕</button>
+        </div>
+      </div>
+
+      <!-- CONTENT AREA -->
+      <div class="content-area">
+        <!-- BUYOUT LIST -->
+        <div class="buyout-list-wrap">
+          <div class="buyout-table-container">
+            <table id="buyoutTable">
+              <thead>
+                <tr>
+                  <th onclick="sortBy('order')"># <span class="sort-arrow" id="sort-order">↕</span></th>
+                  <th onclick="sortBy('name')">Name <span class="sort-arrow" id="sort-name">↕</span></th>
+                  <th onclick="sortBy('trade')">Trade <span class="sort-arrow" id="sort-trade">↕</span></th>
+                  <th>Bids</th>
+                  <th onclick="sortBy('status')">Buyout Status <span class="sort-arrow" id="sort-status">↕</span></th>
+                  <th>Dropbox Folder</th>
+                  <th>Warranties</th>
+                  <th>Vendor Data</th>
+                </tr>
+              </thead>
+              <tbody id="buyoutTbody"></tbody>
+            </table>
+            <div id="emptyState" class="empty-state hidden">
+              <div class="icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="6" width="22" height="26" rx="3" stroke="currentColor" stroke-width="2"/><path d="M13 6V8C13 9.1 13.9 10 15 10H21C22.1 10 23 9.1 23 8V6" stroke="currentColor" stroke-width="2"/><path d="M12 18H24M12 23H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <p>No packages match the current filters</p>
+              <small>Try adjusting your filters or view</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL PANEL -->
+        <div class="detail-panel hidden" id="detailPanel">
+          <div class="detail-header">
+            <div class="detail-header-top">
+              <div>
+                <div class="detail-pkg-name" id="dpName">—</div>
+                <div class="detail-pkg-sub" id="dpSub">—</div>
+              </div>
+              <button class="detail-close" onclick="closeDetail()">✕</button>
+            </div>
+            <div class="detail-status-row" id="dpStatusRow"></div>
+            <div class="detail-kpi-strip" id="dpKpiStrip"></div>
+          </div>
+
+          <div class="detail-tabs">
+            <div class="dtab active" onclick="switchDTab(this, 'overview')">Overview</div>
+            <div class="dtab" onclick="switchDTab(this, 'bids')">Bid Comparison</div>
+            <div class="dtab" onclick="switchDTab(this, 'contract')">Contract</div>
+            <div class="dtab" onclick="switchDTab(this, 'notes')">Notes & Activity</div>
+          </div>
+
+          <div class="detail-body" id="detailBody">
+            <div id="tab-overview" class="tab-panel active"></div>
+            <div id="tab-bids" class="tab-panel"></div>
+            <div id="tab-contract" class="tab-panel"></div>
+            <div id="tab-notes" class="tab-panel"></div>
+          </div>
+
+          <div class="status-action-bar" id="statusActionBar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA MODEL
+// ============================================================
+const TODAY = new Date('2025-04-15');
+function daysFromToday(dateStr) {
+  return Math.round((new Date(dateStr) - TODAY) / 86400000);
+}
+
+const BIDS_DB = {
+  1: [
+    { vendor:'American Fire Protection Group', amount:0, received:'2025-03-10', status:'recommended', scopeComplete:'Complete', inclusions:'Full fire protection scope', exclusions:'None', alternates:'None', qualifications:'Licensed & insured', leveled:true, preferred:true, notes:'Primary contractor for assistant supervisor role.', rank:1 },
+  ],
+  2: [
+    { vendor:'Peterson Contractors Inc.', amount:0, received:'2025-03-05', status:'recommended', scopeComplete:'Complete', inclusions:'Full mobilization scope', exclusions:'None', alternates:'None', qualifications:'Experienced in site mobilization', leveled:true, preferred:true, notes:'Lead mobilization contractor.', rank:1 },
+    { vendor:'Sub Surface', amount:0, received:'2025-03-06', status:'backup', scopeComplete:'Complete', inclusions:'Subsurface mobilization', exclusions:'None', alternates:'None', qualifications:'Certified subsurface work', leveled:true, preferred:false, notes:'Backup contractor.', rank:2 },
+  ],
+  3: [
+    { vendor:'Willscott', amount:0, received:'2025-03-01', status:'recommended', scopeComplete:'Complete', inclusions:'Office trailer supply & setup', exclusions:'Utilities connection', alternates:'None', qualifications:'National vendor', leveled:true, preferred:true, notes:'Primary trailer vendor.', rank:1 },
+    { vendor:'Lovelace Works', amount:0, received:'2025-03-02', status:'backup', scopeComplete:'Complete', inclusions:'Office trailer', exclusions:'None', alternates:'None', qualifications:'Local vendor', leveled:true, preferred:false, notes:'Backup option.', rank:2 },
+  ],
+  4: [
+    { vendor:'Bayou State', amount:0, received:'2025-03-08', status:'recommended', scopeComplete:'Complete', inclusions:'Full porta-potty service', exclusions:'None', alternates:'None', qualifications:'Licensed sanitation vendor', leveled:true, preferred:true, notes:'Only bid received.', rank:1 },
+  ],
+  5: [],
+  6: [
+    { vendor:'Sasquatchwaste', amount:0, received:'2025-03-12', status:'recommended', scopeComplete:'Complete', inclusions:'Exterior trash container service', exclusions:'Hazardous materials', alternates:'None', qualifications:'Licensed waste vendor', leveled:true, preferred:true, notes:'Primary waste vendor.', rank:1 },
+    { vendor:'Yellowfin Waste & Environmental LLC', amount:0, received:'2025-03-13', status:'backup', scopeComplete:'Complete', inclusions:'Full waste service', exclusions:'None', alternates:'None', qualifications:'Environmental compliance certified', leveled:true, preferred:false, notes:'Backup vendor.', rank:2 },
+  ],
+  7: [],
+  8: [
+    { vendor:'Willscott Mobile Mini', amount:0, received:'2025-03-15', status:'recommended', scopeComplete:'Complete', inclusions:'Storage container rental', exclusions:'None', alternates:'None', qualifications:'National vendor', leveled:true, preferred:true, notes:'Standard rental agreement.', rank:1 },
+  ],
+  9: [
+    { vendor:'Summit MEP Systems', amount:0, received:'2025-03-20', status:'recommended', scopeComplete:'Complete', inclusions:'Full MEP scope', exclusions:'None', alternates:'None', qualifications:'Licensed MEP contractor', leveled:true, preferred:true, notes:'Recommended for MEP work.', rank:1 },
+  ],
+  10: [
+    { vendor:'CleanPro Services', amount:0, received:'2025-03-22', status:'recommended', scopeComplete:'Complete', inclusions:'Cleaning services', exclusions:'Hazmat', alternates:'None', qualifications:'Insured cleaning contractor', leveled:true, preferred:true, notes:'Primary cleaning vendor.', rank:1 },
+  ],
+};
+
+const PACKAGES = [
+  {
+    id:1, order:1, name:'Job Supervisor', trade:'Boulder', pm:'Jay Patel',
+    project:'Kimpton Plano', csi:'01 10 00',
+    dueDate:'2025-05-01', onSiteDate:'2025-06-01', priority:'High', status:'Awarded',
+    budget:0, lowBid:0, selectedVendor:'Boulder Construction', awardAmount:0,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:0, coverageCount:0, contractStatus:'Executed',
+    dropboxFolder:'URS - Boulder', warranties:'Boulder', vendorData:'Boulder Construction',
+    notes:'Internal role — no external bid required.',
+    risks:[], contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:4
+  },
+  {
+    id:2, order:2, name:'Project Manager', trade:'Boulder', pm:'Rush Patel',
+    project:'Kimpton Plano', csi:'01 10 00',
+    dueDate:'2025-05-01', onSiteDate:'2025-06-01', priority:'High', status:'Awarded',
+    budget:0, lowBid:0, selectedVendor:'Boulder Construction', awardAmount:0,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:0, coverageCount:0, contractStatus:'Executed',
+    dropboxFolder:'URS - Boulder', warranties:'Boulder', vendorData:'Boulder Construction',
+    notes:'Internal PM assignment.',
+    risks:[], contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:4
+  },
+  {
+    id:3, order:3, name:'Assistant Job Supervisor', trade:'Boulder', pm:'Uma Patel',
+    project:'Kimpton Plano', csi:'01 10 00',
+    dueDate:'2025-05-05', onSiteDate:'2025-06-01', priority:'Medium', status:'Reviewing Bids',
+    budget:0, lowBid:0, selectedVendor:'American Fire Protection Group', awardAmount:0,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:1, coverageCount:1, contractStatus:'Not Started',
+    dropboxFolder:'URS - Boulder', warranties:'Boulder', vendorData:'American Fire Protection Group',
+    notes:'American Fire Protection Group is the primary bid. Awaiting one more.',
+    risks:[{ icon:'⚠️', label:'Single Bid', desc:'Only 1 bid received. Policy requires 2+.' }],
+    contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:0
+  },
+  {
+    id:4, order:4, name:'Mobilization', trade:'Mobilization', pm:'Jay Patel',
+    project:'Kimpton Plano', csi:'01 50 00',
+    dueDate:'2025-04-20', onSiteDate:'2025-05-15', priority:'Critical', status:'Reviewing Bids',
+    budget:0, lowBid:0, selectedVendor:'Peterson Contractors Inc.', awardAmount:0,
+    risk:'Medium', longLead:false, urgent:true, overdue:false,
+    bidsReceived:2, coverageCount:2, contractStatus:'Not Started',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'Peterson Contractors Inc.',
+    notes:'Peterson Contractors and Sub Surface both submitted. Leveling in progress.',
+    risks:[{ icon:'⚠️', label:'Schedule Pressure', desc:'Site must be mobilized by 5/15 to meet foundation pour date.' }],
+    contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:0
+  },
+  {
+    id:5, order:5, name:'Job Site Office Trailer', trade:'Mobilization', pm:'Rush Patel',
+    project:'Kimpton Plano', csi:'01 52 00',
+    dueDate:'2025-04-18', onSiteDate:'2025-05-01', priority:'High', status:'Awarded',
+    budget:0, lowBid:0, selectedVendor:'Lovelace Works', awardAmount:0,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:2, coverageCount:2, contractStatus:'Executed',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'Lovelace Works',
+    notes:'Lovelace Works awarded. Trailer delivered and set up on site.',
+    risks:[], contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:4
+  },
+  {
+    id:6, order:6, name:'PortaPotty', trade:'Mobilization', pm:'Mike Torres',
+    project:'Kimpton Plano', csi:'01 52 10',
+    dueDate:'2025-04-15', onSiteDate:'2025-05-01', priority:'Medium', status:'Awarded',
+    budget:0, lowBid:0, selectedVendor:'Bayou State', awardAmount:0,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:1, coverageCount:1, contractStatus:'Executed',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'Bayou State',
+    notes:'Bayou State is the only local sanitation vendor available. Awarded.',
+    risks:[], contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:4
+  },
+  {
+    id:7, order:7, name:'Storage Containers', trade:'Mobilization', pm:'Jay Patel',
+    project:'Kimpton Plano', csi:'01 52 20',
+    dueDate:'2025-04-25', onSiteDate:'2025-05-10', priority:'Medium', status:'Bidding',
+    budget:0, lowBid:0, selectedVendor:null, awardAmount:null,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:0, coverageCount:0, contractStatus:'Not Started',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'',
+    notes:'RFP issued to Willscott Mobile Mini. No bids received yet.',
+    risks:[{ icon:'⚠️', label:'No Bids Yet', desc:'Containers needed on site by 5/10. Expedite bidding.' }],
+    contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:0
+  },
+  {
+    id:8, order:8, name:'Exterior Trash Containers', trade:'Mobilization', pm:'Rush Patel',
+    project:'Kimpton Plano', csi:'01 52 30',
+    dueDate:'2025-04-22', onSiteDate:'2025-05-05', priority:'Medium', status:'Reviewing Bids',
+    budget:0, lowBid:0, selectedVendor:'Sasquatchwaste', awardAmount:0,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:2, coverageCount:2, contractStatus:'Not Started',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'Sasquatchwaste, Yellowfin Waste & Environmental LLC',
+    notes:'Two bids received. Sasquatchwaste recommended as primary vendor.',
+    risks:[], contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:0
+  },
+  {
+    id:9, order:9, name:'Jobsite Trash Cans', trade:'Mobilization', pm:'Uma Patel',
+    project:'Kimpton Plano', csi:'01 52 40',
+    dueDate:'2025-04-28', onSiteDate:'2025-05-10', priority:'Low', status:'Not Started',
+    budget:0, lowBid:0, selectedVendor:null, awardAmount:null,
+    risk:'Low', longLead:false, urgent:false, overdue:false,
+    bidsReceived:0, coverageCount:0, contractStatus:'Not Started',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'',
+    notes:'No bids yet. Will coordinate with trash container vendor.',
+    risks:[{ icon:'⚠️', label:'RFP Not Issued', desc:'Issue RFP by 4/20 to meet on-site date.' }],
+    contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:0
+  },
+  {
+    id:10, order:10, name:'Temporary Fencing', trade:'Mobilization', pm:'Mike Torres',
+    project:'Kimpton Plano', csi:'01 56 00',
+    dueDate:'2025-04-20', onSiteDate:'2025-05-01', priority:'High', status:'Ready to Award',
+    budget:0, lowBid:0, selectedVendor:'Summit MEP Systems', awardAmount:0,
+    risk:'Medium', longLead:false, urgent:true, overdue:false,
+    bidsReceived:1, coverageCount:1, contractStatus:'Not Started',
+    dropboxFolder:'URS - Mobilization', warranties:'Mobilization', vendorData:'Summit MEP Systems',
+    notes:'Summit MEP submitted bid. Awaiting authorization to award.',
+    risks:[{ icon:'⚠️', label:'Single Bid', desc:'Only 1 bid. Fencing needed before grading begins.' }],
+    contractSteps:['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'], contractProgress:0
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentView = 'all';
+let selectedId = null;
+let sortKey = 'dueDate';
+let sortDir = 1;
+let activeDetailTab = 'overview';
+let expandedBids = {};
+
+function getFilteredPackages() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('filterStatus').value;
+  const priorityF = document.getElementById('filterPriority').value;
+  const pmF = document.getElementById('filterPM').value;
+  const riskF = document.getElementById('filterRisk').value;
+  const globalProject = document.getElementById('globalProjectFilter').value;
+
+  let pkgs = [...PACKAGES];
+
+  if (globalProject !== 'all') {
+    pkgs = pkgs.filter(p => p.project === globalProject || p.project.includes(globalProject));
+  }
+  if (search) {
+    pkgs = pkgs.filter(p =>
+      p.name.toLowerCase().includes(search) ||
+      p.trade.toLowerCase().includes(search) ||
+      p.project.toLowerCase().includes(search) ||
+      p.pm.toLowerCase().includes(search) ||
+      (p.selectedVendor && p.selectedVendor.toLowerCase().includes(search)) ||
+      (p.dropboxFolder && p.dropboxFolder.toLowerCase().includes(search)) ||
+      (p.vendorData && p.vendorData.toLowerCase().includes(search)) ||
+      (p.warranties && p.warranties.toLowerCase().includes(search)) ||
+      (BIDS_DB[p.id] || []).some(b => b.vendor.toLowerCase().includes(search))
+    );
+  }
+  if (statusF) pkgs = pkgs.filter(p => p.status === statusF);
+  if (priorityF) pkgs = pkgs.filter(p => p.priority === priorityF);
+  if (pmF) pkgs = pkgs.filter(p => p.pm === pmF);
+  if (riskF) pkgs = pkgs.filter(p => p.risk === riskF);
+
+  // View filters
+  switch (currentView) {
+    case 'urgent': pkgs = pkgs.filter(p => p.urgent || p.priority === 'Critical'); break;
+    case 'overdue': pkgs = pkgs.filter(p => p.overdue || daysFromToday(p.dueDate) < 0); break;
+    case 'this-week': pkgs = pkgs.filter(p => daysFromToday(p.dueDate) >= 0 && daysFromToday(p.dueDate) <= 7); break;
+    case 'upcoming': pkgs = pkgs.filter(p => daysFromToday(p.dueDate) > 0 && daysFromToday(p.dueDate) <= 21); break;
+    case 'ready-award': pkgs = pkgs.filter(p => p.status === 'Ready to Award'); break;
+    case 'awarded': pkgs = pkgs.filter(p => p.status === 'Awarded' || p.status === 'Contract Out'); break;
+    case 'executed': pkgs = pkgs.filter(p => p.status === 'Executed'); break;
+    case 'bidding': pkgs = pkgs.filter(p => p.status === 'Bidding' || p.status === 'Reviewing Bids'); break;
+    case 'on-hold': pkgs = pkgs.filter(p => p.status === 'On Hold'); break;
+    case 'long-lead': pkgs = pkgs.filter(p => p.longLead); break;
+    case 'missing-coverage': pkgs = pkgs.filter(p => p.coverageCount < 2); break;
+    case 'high-risk': pkgs = pkgs.filter(p => p.risk === 'High'); break;
+    case 'contract-pending': pkgs = pkgs.filter(p => p.contractStatus === 'Draft' || p.contractStatus === 'Verbal Award'); break;
+    case 'by-project': break;
+    case 'by-pm': break;
+    case 'by-trade': break;
+  }
+
+  // Sort
+  pkgs.sort((a, b) => {
+    let va, vb;
+    switch (sortKey) {
+      case 'order': return (a.order - b.order) * sortDir;
+      case 'name': va = a.name; vb = b.name; break;
+      case 'trade': va = a.trade; vb = b.trade; break;
+      case 'project': va = a.project; vb = b.project; break;
+      case 'status': va = a.status; vb = b.status; break;
+      case 'priority':
+        const po = {Critical:0, High:1, Medium:2, Low:3};
+        return (po[a.priority] - po[b.priority]) * sortDir;
+      case 'budget': return (a.budget - b.budget) * sortDir;
+      case 'dueDate': default:
+        va = a.dueDate; vb = b.dueDate; break;
+    }
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+  return pkgs;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  return '$' + (n/1000000 >= 1 ? (n/1000000).toFixed(2) + 'M' : (n/1000).toFixed(0) + 'K');
+}
+function fmtFull(n) {
+  if (!n && n !== 0) return '—';
+  return '$' + n.toLocaleString();
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return (dt.getMonth()+1) + '/' + dt.getDate() + '/' + dt.getFullYear().toString().slice(2);
+}
+function dateClass(pkg) {
+  const days = daysFromToday(pkg.dueDate);
+  if (pkg.overdue || days < 0) return 'date-overdue';
+  if (days <= 5) return 'date-soon';
+  return 'date-ok';
+}
+function dateSuffix(pkg) {
+  const days = daysFromToday(pkg.dueDate);
+  if (pkg.overdue || days < 0) return ` (${Math.abs(days)}d ago)`;
+  if (days === 0) return ' (Today)';
+  if (days <= 5) return ` (${days}d)`;
+  return '';
+}
+
+const STATUS_CLASS = {
+  'Not Started':'s-not-started','Bidding':'s-bidding','Reviewing Bids':'s-reviewing',
+  'Scope Leveling':'s-leveling','Negotiating':'s-negotiating','Pending Decision':'s-pending',
+  'Ready to Award':'s-ready','Awarded':'s-awarded','Contract Out':'s-contract',
+  'Executed':'s-executed','On Hold':'s-hold','Overdue':'s-overdue'
+};
+const PRIORITY_CLASS = { Critical:'p-critical', High:'p-high', Medium:'p-medium', Low:'p-low' };
+
+function renderCoverage(pkg) {
+  const count = pkg.coverageCount;
+  const dots = Math.max(count, 3);
+  let html = '<div class="coverage-bar"><div class="coverage-dots">';
+  for (let i = 0; i < dots; i++) {
+    let cls = i < count ? (count < 2 ? 'warn' : 'filled') : 'empty';
+    html += `<div class="cdot ${cls}"></div>`;
+  }
+  html += `</div><span class="coverage-num">${count}</span></div>`;
+  return html;
+}
+
+function renderTable() {
+  const pkgs = getFilteredPackages();
+  const tbody = document.getElementById('buyoutTbody');
+  const empty = document.getElementById('emptyState');
+  document.getElementById('rowCount').textContent = pkgs.length + ' package' + (pkgs.length !== 1 ? 's' : '');
+
+  if (!pkgs.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = pkgs.map(pkg => {
+    const isSelected = pkg.id === selectedId;
+    const isOverdue = pkg.overdue || daysFromToday(pkg.dueDate) < 0;
+    const rowClass = (isSelected ? 'selected ' : '') + (isOverdue ? 'overdue-row' : '');
+
+    // Bids column: count + vendor pills
+    const bids = BIDS_DB[pkg.id] || [];
+    const bidVendors = bids.map(b => `<span class="bid-vendor-pill ${b.status}">${b.vendor}</span>`).join('');
+    const bidsHtml = bids.length
+      ? `<div class="bids-cell"><span class="bids-count">${bids.length}</span><div class="bid-pills">${bidVendors}</div></div>`
+      : `<span class="no-bids-tag">No bids</span>`;
+
+    // Dropbox folder
+    const dropbox = pkg.dropboxFolder
+      ? `<a class="dropbox-link" onclick="event.stopPropagation();openDropboxLink('${pkg.id}')" title="${pkg.dropboxFolder}">
+           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2L6 4.5L9 2L12 4L9 6L12 8L9 10L6 7.5L3 10L0 8L3 6L0 4L3 2Z" fill="currentColor"/></svg>
+           <span class="truncate" style="max-width:90px;">${pkg.dropboxFolder}</span>
+         </a>`
+      : '<span style="color:var(--text-muted);font-size:11px;">—</span>';
+
+    // Warranties
+    const warranties = pkg.warranties
+      ? `<span class="warranty-tag">${pkg.warranties}</span>`
+      : '<span style="color:var(--text-muted);font-size:11px;">—</span>';
+
+    // Vendor Data
+    const vendorData = pkg.vendorData
+      ? `<span class="vendor-data-cell truncate" title="${pkg.vendorData}">${pkg.vendorData}</span>`
+      : '<span style="color:var(--text-muted);font-size:11px;">—</span>';
+
+    return `<tr class="${rowClass}" onclick="selectPackage(${pkg.id})" data-id="${pkg.id}">
+      <td><span class="order-num">${pkg.order}</span></td>
+      <td>
+        <div class="pkg-name">
+          ${pkg.longLead ? '<span class="pkg-longalert">LL</span>' : ''}
+          <span>${pkg.name}</span>
+        </div>
+        <div class="pkg-csi">${pkg.csi} · ${pkg.pm}</div>
+      </td>
+      <td><span class="trade-pill">${pkg.trade}</span></td>
+      <td>${bidsHtml}</td>
+      <td><span class="status-badge ${STATUS_CLASS[pkg.status] || 's-not-started'}">${pkg.status}</span></td>
+      <td>${dropbox}</td>
+      <td>${warranties}</td>
+      <td>${vendorData}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// KPI
+// ============================================================
+function renderKPI() {
+  const all = PACKAGES;
+  const overdue = all.filter(p => p.overdue || daysFromToday(p.dueDate) < 0).length;
+  const urgent = all.filter(p => p.urgent || p.priority === 'Critical').length;
+  const thisWeek = all.filter(p => daysFromToday(p.dueDate) >= 0 && daysFromToday(p.dueDate) <= 7).length;
+  const ready = all.filter(p => p.status === 'Ready to Award').length;
+  const awarded = all.filter(p => ['Awarded','Contract Out','Executed'].includes(p.status)).length;
+  const missingCov = all.filter(p => p.coverageCount < 2).length;
+  const highRisk = all.filter(p => p.risk === 'High').length;
+  const longLead = all.filter(p => p.longLead).length;
+
+  const totalBids = PACKAGES.reduce((sum,p) => sum + (BIDS_DB[p.id]||[]).length, 0);
+  const withVendor = all.filter(p => p.vendorData && p.vendorData.length > 0).length;
+  const withDropbox = all.filter(p => p.dropboxFolder && p.dropboxFolder.length > 0).length;
+  document.getElementById('kpiRow').innerHTML = [
+    { label:'Total Packages', val:all.length, sub:'across all projects', color:'navy', view:'all' },
+    { label:'Overdue', val:overdue, sub:'require immediate action', color:'red', view:'overdue' },
+    { label:'Due This Week', val:thisWeek, sub:'target award dates', color:'amber', view:'this-week' },
+    { label:'Ready to Award', val:ready, sub:'awaiting authorization', color:'green', view:'ready-award' },
+    { label:'Awarded / Done', val:awarded, sub:'packages complete', color:'green', view:'awarded' },
+    { label:'Total Bids', val:totalBids, sub:'across all packages', color:'blue', view:'all' },
+    { label:'With Vendor Data', val:withVendor, sub:'vendor assigned', color:'teal', view:'all' },
+    { label:'Missing Coverage', val:missingCov, sub:'< 2 bids received', color:'purple', view:'missing-coverage' },
+    { label:'High Risk', val:highRisk, sub:'need attention', color:'red', view:'high-risk' },
+  ].map(k => `
+    <div class="kpi-card ${k.color}" onclick="setViewFromKPI('${k.view}')">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+}
+
+function setViewFromKPI(view) {
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(el => el.classList.remove('active'));
+  const target = document.querySelector(`[data-view="${view}"]`);
+  if (target) target.classList.add('active');
+  currentView = view;
+  const titles = {
+    all:'All Buyouts', urgent:'Urgent / Focus', overdue:'Overdue',
+    'this-week':'Due This Week', upcoming:'Upcoming', 'ready-award':'Ready to Award',
+    awarded:'Awarded', executed:'Executed', bidding:'Bidding', 'on-hold':'On Hold',
+    'long-lead':'Long Lead', 'missing-coverage':'Missing Bid Coverage',
+    'high-risk':'High Risk', 'contract-pending':'Contract Pending',
+    'by-project':'By Project', 'by-pm':'By PM', 'by-trade':'By Trade'
+  };
+  document.getElementById('viewTitle').textContent = titles[view] || view;
+  renderTable();
+}
+
+// ============================================================
+// DETAIL PANEL
+// ============================================================
+function selectPackage(id) {
+  selectedId = id;
+  const pkg = PACKAGES.find(p => p.id === id);
+  if (!pkg) return;
+  document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('selected'));
+  document.querySelectorAll(`tr[data-id="${id}"]`).forEach(tr => tr.classList.add('selected'));
+  renderDetail(pkg);
+  document.getElementById('detailPanel').classList.remove('hidden');
+  // Default to bids tab if has bids, else overview
+  switchDTabById(BIDS_DB[id] && BIDS_DB[id].length ? 'bids' : 'overview');
+}
+
+function closeDetail() {
+  selectedId = null;
+  document.getElementById('detailPanel').classList.add('hidden');
+  document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('selected'));
+}
+
+function renderDetail(pkg) {
+  document.getElementById('dpName').textContent = pkg.name;
+  document.getElementById('dpSub').textContent = `${pkg.csi} · ${pkg.trade} · ${pkg.project}`;
+
+  // Status row
+  const days = daysFromToday(pkg.dueDate);
+  const overdue = pkg.overdue || days < 0;
+  let statusRow = `<span class="dsr-status ${STATUS_CLASS[pkg.status] || 's-not-started'}">${pkg.status}</span>`;
+  statusRow += `<span class="dsr-pill muted">${pkg.pm}</span>`;
+  statusRow += `<span class="dsr-pill muted">${pkg.priority} Priority</span>`;
+  if (overdue) statusRow += `<span class="dsr-pill red">⚠ Overdue ${Math.abs(days)}d</span>`;
+  else if (days === 0) statusRow += `<span class="dsr-pill amber">Due Today</span>`;
+  else if (days <= 5) statusRow += `<span class="dsr-pill amber">Due in ${days}d</span>`;
+  if (pkg.longLead) statusRow += `<span class="dsr-pill amber">⏳ Long Lead</span>`;
+  if (pkg.risk === 'High') statusRow += `<span class="dsr-pill red">High Risk</span>`;
+  document.getElementById('dpStatusRow').innerHTML = statusRow;
+
+  // KPI strip
+  const variance = pkg.lowBid ? ((pkg.lowBid / pkg.budget - 1) * 100).toFixed(1) : null;
+  const kpiStrip = `
+    <div class="dkpi">
+      <div class="dkpi-val">${pkg.lowBid ? fmt(pkg.lowBid) : '—'}</div>
+      <div class="dkpi-label">Low Bid</div>
+    </div>
+    <div class="dkpi">
+      <div class="dkpi-val ${variance !== null ? (parseFloat(variance) < 0 ? 'green' : 'red') : ''}">${variance !== null ? (parseFloat(variance) > 0 ? '+' : '') + variance + '%' : '—'}</div>
+      <div class="dkpi-label">vs Budget</div>
+    </div>
+    <div class="dkpi">
+      <div class="dkpi-val ${pkg.coverageCount < 2 ? 'amber' : 'green'}">${pkg.coverageCount}</div>
+      <div class="dkpi-label">Bids</div>
+    </div>`;
+  document.getElementById('dpKpiStrip').innerHTML = kpiStrip;
+
+  renderOverviewTab(pkg);
+  renderBidsTab(pkg);
+  renderContractTab(pkg);
+  renderNotesTab(pkg);
+  renderActionBar(pkg);
+
+  // Update tab labels with counts
+  const bids = BIDS_DB[pkg.id] || [];
+  const tabs = document.querySelectorAll('.dtab');
+  const tabLabels = [
+    'Overview',
+    `Bids${bids.length ? ` <span class="dtab-count">${bids.length}</span>` : ''}`,
+    'Contract',
+    'Notes'
+  ];
+  tabs.forEach((t, i) => { if (tabLabels[i] !== undefined) t.innerHTML = tabLabels[i]; });
+}
+
+function renderOverviewTab(pkg) {
+  const days = daysFromToday(pkg.dueDate);
+  const overdue = pkg.overdue || days < 0;
+  const variance = pkg.lowBid ? ((pkg.lowBid / pkg.budget - 1) * 100).toFixed(1) : null;
+  let html = '';
+
+  // Award banner
+  if (pkg.selectedVendor && (pkg.status === 'Awarded' || pkg.status === 'Ready to Award')) {
+    html += `<div class="award-bar">
+      <div class="award-icon">★</div>
+      <div class="award-text">
+        <div class="award-vendor">${pkg.selectedVendor}</div>
+        <div class="award-amount">${fmtFull(pkg.awardAmount || pkg.lowBid)}</div>
+      </div>
+      <div class="award-badge">RECOMMENDED</div>
+    </div>`;
+  }
+
+  // Urgent alerts first
+  if (pkg.risks && pkg.risks.length) {
+    pkg.risks.forEach(r => {
+      const isRed = r.icon === '🔴';
+      html += `<div class="dp-alert ${isRed ? 'red' : 'amber'}" style="margin-bottom:0;">
+        <div class="dp-alert-icon">${r.icon}</div>
+        <div class="dp-alert-body">
+          <div class="dp-alert-title">${r.label}</div>
+          <div class="dp-alert-desc">${r.desc}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Money card
+  html += `<div class="dp-card" style="margin-top:12px;">
+    <div class="dp-stat-row">
+      <div class="dp-stat">
+        <div class="dp-stat-val">${fmt(pkg.budget)}</div>
+        <div class="dp-stat-label">Budget</div>
+      </div>
+      <div class="dp-stat">
+        <div class="dp-stat-val ${pkg.lowBid ? (pkg.lowBid < pkg.budget ? 'green' : 'red') : ''}">${pkg.lowBid ? fmt(pkg.lowBid) : '—'}</div>
+        <div class="dp-stat-label">Low Bid</div>
+      </div>
+      <div class="dp-stat">
+        <div class="dp-stat-val ${variance !== null ? (parseFloat(variance) < 0 ? 'green' : 'red') : ''}">${variance !== null ? (parseFloat(variance) > 0 ? '+' : '') + variance + '%' : '—'}</div>
+        <div class="dp-stat-label">Variance</div>
+      </div>
+    </div>
+    ${pkg.awardAmount ? `<div class="dp-info-row">
+      <span class="dp-info-label">Award Amount</span>
+      <span class="dp-info-val mono green">${fmtFull(pkg.awardAmount)}</span>
+    </div>` : ''}
+  </div>`;
+
+  // Dates & assignment card
+  html += `<div class="dp-card">
+    <div class="dp-card-title">Schedule & Assignment</div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Target Award</span>
+      <span class="dp-info-val mono ${overdue ? 'red' : days <= 5 ? 'amber' : ''}">${fmtDate(pkg.dueDate)}${overdue ? ` · ${Math.abs(days)}d late` : days === 0 ? ' · Today' : days <= 5 ? ` · ${days}d` : ''}</span>
+    </div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Needed On Site</span>
+      <span class="dp-info-val mono ${pkg.onSiteDate ? '' : 'muted'}">${fmtDate(pkg.onSiteDate)}</span>
+    </div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">PM / Estimator</span>
+      <span class="dp-info-val">${pkg.pm}</span>
+    </div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Bid Coverage</span>
+      <span class="dp-info-val ${pkg.coverageCount < 2 ? 'amber' : 'green'}">${pkg.coverageCount < 2 ? '⚠ ' : '✓ '}${pkg.coverageCount} bid${pkg.coverageCount !== 1 ? 's' : ''} received</span>
+    </div>
+    ${pkg.selectedVendor ? `<div class="dp-info-row">
+      <span class="dp-info-label">Rec. Vendor</span>
+      <span class="dp-info-val green">${pkg.selectedVendor}</span>
+    </div>` : ''}
+    ${pkg.dropboxFolder ? `<div class="dp-info-row">
+      <span class="dp-info-label">Dropbox Folder</span>
+      <span class="dp-info-val"><a class="detail-dropbox-link" onclick="openDropboxLink('${pkg.id}')">📁 ${pkg.dropboxFolder}</a></span>
+    </div>` : ''}
+    ${pkg.warranties ? `<div class="dp-info-row">
+      <span class="dp-info-label">Warranties</span>
+      <span class="dp-info-val">${pkg.warranties}</span>
+    </div>` : ''}
+    ${pkg.vendorData ? `<div class="dp-info-row">
+      <span class="dp-info-label">Vendor Data</span>
+      <span class="dp-info-val" style="font-size:11px;">${pkg.vendorData}</span>
+    </div>` : ''}
+  </div>`;
+
+  // Notes card
+  if (pkg.notes) {
+    html += `<div class="dp-card" style="margin-bottom:14px;">
+      <div class="dp-card-title">Notes</div>
+      <div class="dp-notes-text">${pkg.notes}</div>
+    </div>`;
+  }
+
+  document.getElementById('tab-overview').innerHTML = html;
+}
+
+function renderBidsTab(pkg) {
+  const bids = BIDS_DB[pkg.id] || [];
+  let html = `<div class="bid-comparison">
+    <div class="bid-summary-bar">
+      <div>
+        <div class="bid-summary-left">${bids.length} Bid${bids.length !== 1 ? 's' : ''} Received</div>
+        <div class="bid-summary-sub">Budget ${fmtFull(pkg.budget)} · Low bid ${fmtFull(pkg.lowBid)}</div>
+      </div>
+      <span class="bid-cov-badge ${pkg.coverageCount < 2 ? 'warning' : 'ok'}">${pkg.coverageCount < 2 ? '⚠ Need More Bids' : '✓ Coverage OK'}</span>
+    </div>`;
+
+  if (!bids.length) {
+    html += `<div class="empty-state" style="margin:12px 14px;"><div class="icon">📭</div><p>No bids received yet</p><small>Issue RFP to begin bid collection</small></div>`;
+  } else {
+    bids.forEach((bid, i) => {
+      const vsBudget = ((bid.amount / pkg.budget - 1) * 100).toFixed(1);
+      const isExpanded = expandedBids[`${pkg.id}-${i}`] || false;
+      const tagClass = { recommended:'recommended', backup:'backup', excluded:'excluded', preferred:'preferred', pending:'pending' }[bid.status] || 'pending';
+      const tagLabel = bid.status.charAt(0).toUpperCase() + bid.status.slice(1);
+      html += `
+        <div class="bid-card ${bid.status}" id="bid-card-${pkg.id}-${i}">
+          <div class="bid-card-header" onclick="toggleBid(${pkg.id},${i})">
+            <div class="bid-rank rank-${bid.rank === 'EX' ? 'ex' : bid.rank}">${bid.rank}</div>
+            <div class="bid-vendor">${bid.vendor}</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-left:auto;">
+              <div class="bid-amount">${fmtFull(bid.amount)}</div>
+              <span class="bid-vs-budget ${parseFloat(vsBudget) < 0 ? 'bid-under' : 'bid-over'}">${parseFloat(vsBudget) > 0 ? '+' : ''}${vsBudget}%</span>
+              <span class="bid-tag ${tagClass}">${tagLabel}</span>
+              <span class="bid-chevron ${isExpanded ? 'open' : ''}">▼</span>
+            </div>
+          </div>
+          <div class="bid-card-body ${isExpanded ? 'expanded' : ''}" id="bid-body-${pkg.id}-${i}">
+            <div class="bid-detail-grid">
+              <div class="bid-detail-item">
+                <div class="bid-detail-label">Received</div>
+                <div class="bid-detail-val">${fmtDate(bid.received)}</div>
+              </div>
+              <div class="bid-detail-item">
+                <div class="bid-detail-label">Scope</div>
+                <div class="bid-detail-val ${bid.scopeComplete === 'Complete' ? 'green' : bid.scopeComplete === 'Partial' ? 'amber' : 'red'}">${bid.scopeComplete === 'Complete' ? '✓ Complete' : bid.scopeComplete === 'Partial' ? '◑ Partial' : '✗ Incomplete'}</div>
+              </div>
+              <div class="bid-detail-item">
+                <div class="bid-detail-label">Leveled</div>
+                <div class="bid-detail-val ${bid.leveled ? 'green' : 'amber'}">${bid.leveled ? '✓ Yes' : '⏳ In Progress'}</div>
+              </div>
+              <div class="bid-detail-item">
+                <div class="bid-detail-label">Alternates</div>
+                <div class="bid-detail-val">${bid.alternates}</div>
+              </div>
+              <div class="bid-detail-item full">
+                <div class="bid-detail-label">Inclusions</div>
+                <div class="bid-detail-val">${bid.inclusions}</div>
+              </div>
+              <div class="bid-detail-item full">
+                <div class="bid-detail-label">Exclusions</div>
+                <div class="bid-detail-val ${bid.exclusions !== 'None' && bid.exclusions !== 'None noted' ? 'amber' : ''}">${bid.exclusions}</div>
+              </div>
+              <div class="bid-detail-item full">
+                <div class="bid-detail-label">Qualifications</div>
+                <div class="bid-detail-val">${bid.qualifications}</div>
+              </div>
+              <div class="bid-detail-item full">
+                <div class="bid-detail-label">Notes</div>
+                <div class="bid-detail-val">${bid.notes}</div>
+              </div>
+            </div>
+            <div class="bid-detail-actions">
+              ${bid.status !== 'recommended' ? `<button class="bid-action-btn recommend" onclick="event.stopPropagation();setBidStatus(${pkg.id},${i},'recommended')">✓ Recommend</button>` : ''}
+              ${bid.status !== 'excluded' ? `<button class="bid-action-btn exclude" onclick="event.stopPropagation();setBidStatus(${pkg.id},${i},'excluded')">Exclude</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+  html += '</div>';
+  document.getElementById('tab-bids').innerHTML = html;
+}
+
+function toggleBid(pkgId, bidIdx) {
+  const key = `${pkgId}-${bidIdx}`;
+  expandedBids[key] = !expandedBids[key];
+  const body = document.getElementById(`bid-body-${pkgId}-${bidIdx}`);
+  const card = document.getElementById(`bid-card-${pkgId}-${bidIdx}`);
+  if (body) body.classList.toggle('expanded', expandedBids[key]);
+  const chevron = card ? card.querySelector('.bid-chevron') : null;
+  if (chevron) chevron.classList.toggle('open', expandedBids[key]);
+}
+
+function setBidStatus(pkgId, bidIdx, status) {
+  if (BIDS_DB[pkgId] && BIDS_DB[pkgId][bidIdx]) {
+    BIDS_DB[pkgId][bidIdx].status = status;
+    const pkg = PACKAGES.find(p => p.id === pkgId);
+    if (status === 'recommended') pkg.selectedVendor = BIDS_DB[pkgId][bidIdx].vendor;
+    renderBidsTab(pkg);
+    renderOverviewTab(pkg);
+    renderActionBar(pkg);
+  }
+}
+
+function renderContractTab(pkg) {
+  const steps = pkg.contractSteps;
+  const progress = pkg.contractProgress;
+  const nextStepHints = [
+    'Verbally notify the selected sub and confirm scope of work.',
+    'Issue scope confirmation letter and begin drafting the subcontract.',
+    'Contract draft in review — confirm insurance certificates and bond.',
+    'Sub has reviewed — route for final signatures.',
+    '✓ Contract fully executed. File original and upload to project records.'
+  ];
+  let html = `<div class="dp-card" style="margin-top:12px;">
+    <div class="dp-card-title">Contract Progress</div>
+    <div class="dp-contract-steps">
+      <div class="dp-step-list">
+        ${steps.map((s, i) => {
+          const cls = i < progress ? 'done' : i === progress ? 'active' : 'future';
+          return `<div class="dp-step-item">
+            <div class="dp-step-icon-wrap">
+              <div class="dp-step-icon ${cls}">${i < progress ? '✓' : i === progress ? '→' : ''}</div>
+              <div class="dp-step-line ${i < progress ? 'done' : ''}"></div>
+            </div>
+            <div class="dp-step-content">
+              <div class="dp-step-name ${cls}">${s}</div>
+              ${i === progress ? `<div class="dp-step-hint">${nextStepHints[i] || ''}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="dp-card" style="margin-bottom:14px;">
+    <div class="dp-card-title">Contract Details</div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Status</span>
+      <span class="dp-info-val">${pkg.contractStatus}</span>
+    </div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Vendor</span>
+      <span class="dp-info-val ${pkg.selectedVendor ? '' : 'muted'}">${pkg.selectedVendor || 'Not selected'}</span>
+    </div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Award Amount</span>
+      <span class="dp-info-val mono ${pkg.awardAmount ? '' : 'muted'}">${pkg.awardAmount ? fmtFull(pkg.awardAmount) : '—'}</span>
+    </div>
+    <div class="dp-info-row">
+      <span class="dp-info-label">Budget</span>
+      <span class="dp-info-val mono">${fmtFull(pkg.budget)}</span>
+    </div>
+  </div>`;
+  document.getElementById('tab-contract').innerHTML = html;
+}
+
+function renderNotesTab(pkg) {
+  const sampleNotes = [
+    { initials:'JP', author:'Jay Patel', time:'Apr 12, 4:30 PM', text:'Reviewed bids with Rush and Uma. Northstar looks best — scope is cleanest and they have prior experience with Hilton brand. Rush to get final VRF equipment lead confirmation from Summit today.' },
+    { initials:'RP', author:'Rush Patel', time:'Apr 11, 9:15 AM', text:'Summit confirmed 14-week lead on VRF equipment. Hilton approval required before they can issue PO. Need to send approval request to brand team asap.' },
+    { initials:'UP', author:'Uma Patel', time:'Apr 10, 2:00 PM', text:'Updated scope leveling matrix. ABC Concrete gap on sleeves is $28K — needs resolution before we issue LOI. Confirmed with Jay to proceed.' },
+  ];
+  let html = `<div class="dp-card" style="margin-top:12px; margin-bottom:14px;">
+    <div class="dp-card-title">Activity & Notes</div>
+    <div class="dp-notes-area">
+      ${sampleNotes.map(n => `
+        <div class="dp-note-item">
+          <div class="dp-note-avatar">${n.initials}</div>
+          <div class="dp-note-body">
+            <div class="dp-note-top">
+              <span class="dp-note-author">${n.author}</span>
+              <span class="dp-note-time">${n.time}</span>
+            </div>
+            <div class="dp-note-text">${n.text}</div>
+          </div>
+        </div>
+      `).join('')}
+      <div class="dp-add-note">
+        <textarea class="dp-note-input" placeholder="Add a note or update…" id="noteInput-${pkg.id}"></textarea>
+        <button class="dp-note-submit" onclick="addNote(${pkg.id})">Post Note</button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('tab-notes').innerHTML = html;
+}
+
+function addNote(pkgId) {
+  const input = document.getElementById(`noteInput-${pkgId}`);
+  if (!input || !input.value.trim()) return;
+  input.value = '';
+  alert('Note posted. (In production, this would save to the backend.)');
+}
+
+function renderActionBar(pkg) {
+  let html = '';
+  switch (pkg.status) {
+    case 'Ready to Award':
+      html = `<button class="status-action-btn green" onclick="changeStatus(${pkg.id},'Awarded')">★ Authorize Award</button>
+              <button class="status-action-btn" onclick="changeStatus(${pkg.id},'Negotiating')">Negotiate</button>
+              <button class="status-action-btn" onclick="changeStatus(${pkg.id},'On Hold')">Put on Hold</button>`;
+      break;
+    case 'Reviewing Bids':
+    case 'Scope Leveling':
+      html = `<button class="status-action-btn primary" onclick="changeStatus(${pkg.id},'Ready to Award')">→ Mark Ready to Award</button>
+              <button class="status-action-btn" onclick="changeStatus(${pkg.id},'Negotiating')">→ Negotiating</button>`;
+      break;
+    case 'Bidding':
+      html = `<button class="status-action-btn primary" onclick="changeStatus(${pkg.id},'Reviewing Bids')">→ Reviewing Bids</button>`;
+      break;
+    case 'Negotiating':
+    case 'Pending Decision':
+      html = `<button class="status-action-btn primary" onclick="changeStatus(${pkg.id},'Ready to Award')">→ Ready to Award</button>
+              <button class="status-action-btn" onclick="changeStatus(${pkg.id},'On Hold')">Hold</button>`;
+      break;
+    case 'Awarded':
+      html = `<button class="status-action-btn primary" onclick="changeStatus(${pkg.id},'Contract Out')">→ Contract Out</button>`;
+      break;
+    case 'Contract Out':
+      html = `<button class="status-action-btn green" onclick="changeStatus(${pkg.id},'Executed')">✓ Mark Executed</button>`;
+      break;
+    case 'Overdue':
+      html = `<button class="status-action-btn" style="border-color:var(--red);color:var(--red);" onclick="markUrgent(${pkg.id})">! Mark Urgent</button>
+              <button class="status-action-btn primary" onclick="changeStatus(${pkg.id},'Reviewing Bids')">→ Reviewing Bids</button>`;
+      break;
+    default:
+      html = `<button class="status-action-btn" onclick="markUrgent(${pkg.id})">↑ Flag Urgent</button>
+              <button class="status-action-btn" onclick="changeStatus(${pkg.id},'Bidding')">→ Bidding</button>`;
+  }
+  document.getElementById('statusActionBar').innerHTML = html;
+}
+
+function changeStatus(id, newStatus) {
+  const pkg = PACKAGES.find(p => p.id === id);
+  if (!pkg) return;
+  pkg.status = newStatus;
+  if (newStatus === 'Awarded') pkg.contractStatus = 'Verbal Award';
+  if (newStatus === 'Contract Out') pkg.contractStatus = 'Draft';
+  if (newStatus === 'Executed') pkg.contractStatus = 'Executed';
+  renderTable();
+  renderDetail(pkg);
+  renderKPI();
+  updateNavBadges();
+}
+
+function markUrgent(id) {
+  const pkg = PACKAGES.find(p => p.id === id);
+  if (pkg) { pkg.urgent = true; }
+  renderTable();
+  renderKPI();
+  updateNavBadges();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchDTab(el, tab) {
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  activeDetailTab = tab;
+}
+function switchDTabById(tab) {
+  const tabNames = ['overview','bids','contract','notes'];
+  document.querySelectorAll('.dtab').forEach((t, i) => {
+    t.classList.toggle('active', tabNames[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  activeDetailTab = tab;
+}
+
+// ============================================================
+// FILTERS & SORT
+// ============================================================
+function applyFilters() { renderTable(); }
+function applyGlobalProjectFilter() { renderTable(); }
+function resetFilters() {
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterPriority').value = '';
+  document.getElementById('filterPM').value = '';
+  document.getElementById('filterRisk').value = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('globalProjectFilter').value = 'all';
+  renderTable();
+}
+
+let sortCycle = ['dueDate','priority','budget','status'];
+let sortCycleIdx = 0;
+function toggleSort() {
+  sortCycleIdx = (sortCycleIdx + 1) % sortCycle.length;
+  sortKey = sortCycle[sortCycleIdx];
+  sortDir *= -1;
+  document.getElementById('sortLabel').textContent = { dueDate:'Due Date', priority:'Priority', budget:'Budget', status:'Status' }[sortKey];
+  renderTable();
+}
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('.sort-arrow').forEach(el => el.parentElement.classList.remove('sorted'));
+  const el = document.getElementById('sort-' + key);
+  if (el) { el.parentElement.classList.add('sorted'); el.textContent = sortDir === 1 ? '↑' : '↓'; }
+  renderTable();
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function setView(el, view) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  currentView = view;
+  const titles = {
+    all:'All Buyouts', urgent:'Urgent / Focus', overdue:'Overdue',
+    'this-week':'Due This Week', upcoming:'Upcoming', 'ready-award':'Ready to Award',
+    awarded:'Awarded', executed:'Executed', bidding:'Bidding', 'on-hold':'On Hold',
+    'long-lead':'Long Lead', 'missing-coverage':'Missing Bid Coverage',
+    'high-risk':'High Risk', 'contract-pending':'Contract Pending',
+    'by-project':'By Project', 'by-pm':'By PM', 'by-trade':'By Trade'
+  };
+  document.getElementById('viewTitle').textContent = titles[view] || view;
+  renderTable();
+  // close sidebar on mobile
+  if (window.innerWidth <= 900) toggleSidebar(false);
+}
+
+function updateNavBadges() {
+  document.getElementById('badge-urgent').textContent = PACKAGES.filter(p => p.urgent || p.priority === 'Critical').length;
+  document.getElementById('badge-overdue').textContent = PACKAGES.filter(p => p.overdue || daysFromToday(p.dueDate) < 0).length;
+  document.getElementById('badge-ready').textContent = PACKAGES.filter(p => p.status === 'Ready to Award').length;
+}
+
+// ============================================================
+// SIDEBAR MOBILE
+// ============================================================
+function toggleSidebar(force) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const isOpen = typeof force === 'boolean' ? force : !sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', isOpen);
+  overlay.classList.toggle('hidden', !isOpen);
+}
+
+function toggleAvatarMenu() {
+  const menu = document.getElementById('avatarMenu');
+  menu.classList.toggle('hidden');
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('avatarBtn');
+  const menu = document.getElementById('avatarMenu');
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+
+// ── AUTH helpers ──────────────────────────────────────────────────────────────
+function getCurrentUser() {
+  try { return JSON.parse(sessionStorage.getItem('bc_user') || 'null'); } catch(e) { return null; }
+}
+function setCurrentUser(u) {
+  sessionStorage.setItem('bc_user', JSON.stringify(u));
+}
+function clearCurrentUser() {
+  sessionStorage.removeItem('bc_user');
+}
+function getInitials(name) {
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+}
+function updateHeaderAvatar() {
+  const u = getCurrentUser();
+  const btn = document.getElementById('avatarBtn');
+  const amAvatar = document.getElementById('amAvatar');
+  const amName = document.getElementById('amName');
+  const amEmail = document.getElementById('amEmail');
+  if (u && btn) {
+    const ini = getInitials(u.name);
+    btn.textContent = ini;
+    btn.title = u.name + ' — ' + u.role;
+    if (amAvatar) amAvatar.textContent = ini;
+    if (amName) amName.textContent = u.name;
+    if (amEmail) amEmail.textContent = u.email;
+  }
+}
+function doSignOut() {
+  clearCurrentUser();
+  document.getElementById('avatarMenu').classList.add('hidden');
+  openAuthModal('login');
+}
+function requireAuth() {
+  if (!getCurrentUser()) { openAuthModal('login'); return false; }
+  return true;
+}
+
+// ============================================================
+// MISC
+// ============================================================
+function showAddPackageAlert() { openNewPackageModal(); }
+function exportData() { openExportModal(); }
+
+function openDropboxLink(pkgId) {
+  const pkg = PACKAGES.find(p => p.id == pkgId);
+  if (!pkg || !pkg.dropboxFolder) return;
+  // In production this would open the real Dropbox URL
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,25,35,0.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `<div style="background:#fff;border-radius:10px;padding:24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div style="font-size:24px;">📁</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#0f1923;">Dropbox Folder</div>
+        <div style="font-size:12px;color:#7a94a6;margin-top:2px;">${pkg.name}</div>
+      </div>
+    </div>
+    <div style="background:#eef4fc;border:1px solid rgba(26,95,168,0.15);border-radius:6px;padding:12px;font-size:13px;font-weight:600;color:#1a5fa8;margin-bottom:16px;">${pkg.dropboxFolder}</div>
+    <div style="font-size:12px;color:#7a94a6;margin-bottom:16px;">In production, this button would open the linked Dropbox folder directly in your browser.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="this.closest('[style]').remove()" style="padding:7px 16px;border:1px solid #dce4eb;border-radius:6px;background:#fff;color:#4a6278;font-size:13px;cursor:pointer;font-family:inherit;">Close</button>
+      <button onclick="this.closest('[style]').remove()" style="padding:7px 16px;border:none;border-radius:6px;background:#e8820c;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Open Folder →</button>
+    </div>
+  </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderKPI();
+renderTable();
+updateNavBadges();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const user = getCurrentUser();
+  if (!user) {
+    openAuthModal('login');
+  } else {
+    updateHeaderAvatar();
+  }
+});
+</script>
+
+<!-- ============================================================
+     NEW PACKAGE MODAL — styles
+============================================================ -->
+<style>
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,25,35,0.55);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .modal-box {
+    background: var(--white); border-radius: 10px;
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 680px;
+    max-height: 92vh; display: flex; flex-direction: column;
+    transform: translateY(12px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0); }
+
+  .modal-head {
+    background: var(--navy); border-radius: 10px 10px 0 0;
+    padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .modal-head-title { font-size: 16px; font-weight: 700; color: white; }
+  .modal-head-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .modal-close-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.65); width: 34px; height: 34px; border-radius: 6px;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s; flex-shrink: 0;
+  }
+  .modal-close-btn:hover { background: rgba(255,255,255,0.16); color: white; }
+
+  .modal-step-bar {
+    display: flex; align-items: center; gap: 0;
+    padding: 14px 22px; border-bottom: 1px solid var(--border);
+    background: var(--slate); flex-shrink: 0;
+  }
+  .modal-step {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; color: var(--text-muted);
+    flex: 1;
+  }
+  .modal-step.active { color: var(--amber); font-weight: 700; }
+  .modal-step.done { color: var(--green); }
+  .modal-step-num {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0; background: var(--white);
+    font-family: var(--mono);
+  }
+  .modal-step.active .modal-step-num { border-color: var(--amber); background: var(--amber); color: white; }
+  .modal-step.done .modal-step-num { border-color: var(--green); background: var(--green); color: white; }
+  .modal-step-connector { flex: 0 0 24px; height: 2px; background: var(--border); margin: 0 4px; }
+
+  .modal-body {
+    flex: 1; overflow-y: auto; padding: 22px;
+  }
+  .modal-body::-webkit-scrollbar { width: 5px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+
+  .modal-step-panel { display: none; }
+  .modal-step-panel.active { display: block; }
+
+  .modal-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 14px; margin-top: 18px;
+  }
+  .modal-section-title:first-child { margin-top: 0; }
+
+  .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .modal-form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .modal-form-grid.full { grid-template-columns: 1fr; }
+
+  .modal-field {}
+  .modal-field label {
+    display: block; font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+  }
+  .modal-field label .req { color: var(--red); margin-left: 2px; }
+  .modal-input, .modal-select, .modal-textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px 10px; font-family: var(--font); font-size: 13px;
+    color: var(--text-primary); background: var(--white);
+    transition: border-color 0.12s, box-shadow 0.12s;
+    outline: none;
+  }
+  .modal-input:focus, .modal-select:focus, .modal-textarea:focus {
+    border-color: var(--amber); box-shadow: 0 0 0 3px rgba(232,130,12,0.1);
+  }
+  .modal-input.error, .modal-select.error { border-color: var(--red); }
+  .modal-textarea { resize: vertical; min-height: 72px; }
+  .modal-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2398aab8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .modal-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .modal-error-msg { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
+  .modal-field.has-error .modal-error-msg { display: block; }
+
+  .modal-toggle-wrap { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+  .modal-toggle {
+    width: 36px; height: 20px; background: var(--slate-3); border-radius: 10px;
+    border: none; cursor: pointer; position: relative; transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .modal-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 14px; height: 14px; border-radius: 50%; background: white;
+    transition: left 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .modal-toggle.on { background: var(--green); }
+  .modal-toggle.on::after { left: 19px; }
+  .modal-toggle-label { font-size: 13px; color: var(--text-secondary); }
+
+  .modal-summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  .modal-summary-item {
+    padding: 11px 14px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .modal-summary-item:nth-child(2n) { border-right: none; }
+  .modal-summary-item:nth-last-child(-n+2) { border-bottom: none; }
+  .modal-summary-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 3px; }
+  .modal-summary-value { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .modal-summary-value.mono { font-family: var(--mono); }
+
+  .modal-footer {
+    padding: 14px 22px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--slate); border-radius: 0 0 10px 10px;
+    flex-shrink: 0; gap: 10px;
+  }
+  .modal-footer-left { display: flex; gap: 8px; align-items: center; }
+  .modal-footer-right { display: flex; gap: 8px; }
+  .modal-btn {
+    padding: 8px 18px; border-radius: var(--radius); font-family: var(--font);
+    font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+    transition: background 0.12s, opacity 0.12s;
+  }
+  .modal-btn.secondary {
+    background: var(--white); border: 1px solid var(--border); color: var(--text-secondary);
+  }
+  .modal-btn.secondary:hover { border-color: var(--border-dark); color: var(--text-primary); }
+  .modal-btn.primary { background: var(--amber); color: white; }
+  .modal-btn.primary:hover { background: #d4720a; }
+  .modal-btn.success { background: var(--green); color: white; }
+  .modal-btn.success:hover { background: #157040; }
+  .modal-btn.ghost { background: none; border: none; color: var(--text-muted); padding: 8px 10px; }
+  .modal-btn.ghost:hover { color: var(--text-primary); }
+
+  .modal-success-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 22px; text-align: center; gap: 12px;
+  }
+  .modal-success-icon {
+    width: 60px; height: 60px; border-radius: 50%; background: var(--green-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 4px;
+    border: 2px solid rgba(26,122,74,0.2);
+  }
+  .modal-success-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+  .modal-success-sub { font-size: 13px; color: var(--text-secondary); max-width: 340px; line-height: 1.6; }
+  .modal-success-pkg-name {
+    font-size: 15px; font-weight: 700; color: var(--amber);
+    background: var(--amber-light); border: 1px solid var(--amber-border);
+    padding: 6px 16px; border-radius: var(--radius);
+    font-family: var(--mono);
+  }
+  @media (max-width: 600px) {
+    .modal-form-grid { grid-template-columns: 1fr; }
+    .modal-form-grid.cols-3 { grid-template-columns: 1fr; }
+    .modal-summary-grid { grid-template-columns: 1fr; }
+    .modal-summary-item { border-right: none !important; }
+  }
+</style>
+
+<!-- ============================================================
+     NEW PACKAGE MODAL — HTML
+============================================================ -->
+<div class="modal-overlay" id="newPkgOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="newPkgBox">
+
+    <!-- Header -->
+    <div class="modal-head">
+      <div>
+        <div class="modal-head-title">New Buyout Package</div>
+        <div class="modal-head-sub">Add a new trade package to the buyout log</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeNewPackageModal()">✕</button>
+    </div>
+
+    <!-- Step bar -->
+    <div class="modal-step-bar" id="npStepBar">
+      <div class="modal-step active" id="np-step-ind-1">
+        <div class="modal-step-num">1</div> Package Info
+      </div>
+      <div class="modal-step-connector"></div>
+      <div class="modal-step" id="np-step-ind-2">
+        <div class="modal-step-num">2</div> Schedule & Budget
+      </div>
+      <div class="modal-step-connector"></div>
+      <div class="modal-step" id="np-step-ind-3">
+        <div class="modal-step-num">3</div> Review & Create
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body" id="npModalBody">
+
+      <!-- STEP 1 — Package Info -->
+      <div class="modal-step-panel active" id="np-panel-1">
+        <div class="modal-section-title">Package Identity</div>
+        <div class="modal-form-grid">
+          <div class="modal-field" id="npf-name" style="grid-column:1/-1;">
+            <label>Package Name <span class="req">*</span></label>
+            <input class="modal-input" id="np-name" type="text" placeholder="e.g. Mechanical / HVAC" autocomplete="off">
+            <div class="modal-error-msg">Package name is required.</div>
+          </div>
+          <div class="modal-field" id="npf-csi">
+            <label>CSI Division <span class="req">*</span></label>
+            <input class="modal-input" id="np-csi" type="text" placeholder="e.g. 23 00 00">
+            <div class="modal-error-msg">CSI division is required.</div>
+          </div>
+          <div class="modal-field" id="npf-trade">
+            <label>Trade <span class="req">*</span></label>
+            <select class="modal-select" id="np-trade">
+              <option value="">— Select trade —</option>
+              <option>Concrete</option>
+              <option>Mechanical</option>
+              <option>Plumbing</option>
+              <option>Electrical</option>
+              <option>Glazing</option>
+              <option>Roofing</option>
+              <option>Drywall</option>
+              <option>Paint</option>
+              <option>Flooring</option>
+              <option>Millwork</option>
+              <option>Elevators</option>
+              <option>Fire Protection</option>
+              <option>Fire Alarm</option>
+              <option>Technology</option>
+              <option>Steel</option>
+              <option>Other</option>
+            </select>
+            <div class="modal-error-msg">Please select a trade.</div>
+          </div>
+        </div>
+
+        <div class="modal-section-title">Assignment</div>
+        <div class="modal-form-grid">
+          <div class="modal-field" id="npf-project">
+            <label>Project <span class="req">*</span></label>
+            <select class="modal-select" id="np-project">
+              <option value="">— Select project —</option>
+              <option>Kimpton Plano</option>
+              <option>Guestroom Tower</option>
+              <option>Podium Lobby</option>
+            </select>
+            <div class="modal-error-msg">Please select a project.</div>
+          </div>
+          <div class="modal-field" id="npf-pm">
+            <label>PM / Estimator <span class="req">*</span></label>
+            <select class="modal-select" id="np-pm">
+              <option value="">— Select PM —</option>
+              <option>Jay Patel</option>
+              <option>Rush Patel</option>
+              <option>Uma Patel</option>
+              <option>Mike Torres</option>
+            </select>
+            <div class="modal-error-msg">Please assign a PM.</div>
+          </div>
+          <div class="modal-field" id="npf-priority">
+            <label>Priority <span class="req">*</span></label>
+            <select class="modal-select" id="np-priority">
+              <option value="">— Select priority —</option>
+              <option>Critical</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+            <div class="modal-error-msg">Please set a priority.</div>
+          </div>
+          <div class="modal-field">
+            <label>Risk Level</label>
+            <select class="modal-select" id="np-risk">
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-section-title">Flags</div>
+        <div class="modal-form-grid">
+          <div class="modal-field">
+            <label>Long Lead Item</label>
+            <div class="modal-toggle-wrap">
+              <button class="modal-toggle" id="np-longlead-toggle" onclick="toggleModalToggle('np-longlead-toggle','np-longlead')"></button>
+              <input type="hidden" id="np-longlead" value="false">
+              <span class="modal-toggle-label" id="np-longlead-label">No</span>
+            </div>
+            <div class="modal-hint">Flag if material/equipment lead time is critical.</div>
+          </div>
+          <div class="modal-field">
+            <label>Mark Urgent</label>
+            <div class="modal-toggle-wrap">
+              <button class="modal-toggle" id="np-urgent-toggle" onclick="toggleModalToggle('np-urgent-toggle','np-urgent')"></button>
+              <input type="hidden" id="np-urgent" value="false">
+              <span class="modal-toggle-label" id="np-urgent-label">No</span>
+            </div>
+            <div class="modal-hint">Adds package to the Urgent / Focus view.</div>
+          </div>
+        </div>
+
+        <div class="modal-section-title">Initial Notes</div>
+        <div class="modal-form-grid full">
+          <div class="modal-field">
+            <label>Package Notes</label>
+            <textarea class="modal-textarea" id="np-notes" placeholder="Scope overview, key items to coordinate, special requirements…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 — Schedule & Budget -->
+      <div class="modal-step-panel" id="np-panel-2">
+        <div class="modal-section-title">Budget</div>
+        <div class="modal-form-grid">
+          <div class="modal-field" id="npf-budget">
+            <label>Estimated Budget ($) <span class="req">*</span></label>
+            <input class="modal-input" id="np-budget" type="number" min="0" placeholder="e.g. 2500000">
+            <div class="modal-error-msg">Please enter a budget amount.</div>
+          </div>
+          <div class="modal-field">
+            <label>Procurement Method</label>
+            <select class="modal-select" id="np-procurement">
+              <option value="Competitive Bid">Competitive Bid</option>
+              <option value="Negotiated">Negotiated</option>
+              <option value="Sole Source">Sole Source</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-section-title">Key Dates</div>
+        <div class="modal-form-grid">
+          <div class="modal-field" id="npf-dueDate">
+            <label>Target Award Date <span class="req">*</span></label>
+            <input class="modal-input" id="np-dueDate" type="date">
+            <div class="modal-error-msg">Please set a target award date.</div>
+          </div>
+          <div class="modal-field">
+            <label>Needed On Site</label>
+            <input class="modal-input" id="np-onSiteDate" type="date">
+            <div class="modal-hint">When trade must mobilize on site.</div>
+          </div>
+          <div class="modal-field">
+            <label>RFP Issue Date</label>
+            <input class="modal-input" id="np-rfpDate" type="date">
+          </div>
+          <div class="modal-field">
+            <label>Bid Due Date</label>
+            <input class="modal-input" id="np-bidDueDate" type="date">
+          </div>
+        </div>
+
+        <div class="modal-section-title">Initial Status</div>
+        <div class="modal-form-grid">
+          <div class="modal-field">
+            <label>Status</label>
+            <select class="modal-select" id="np-status">
+              <option value="Not Started">Not Started</option>
+              <option value="Bidding">Bidding</option>
+              <option value="Reviewing Bids">Reviewing Bids</option>
+              <option value="Scope Leveling">Scope Leveling</option>
+              <option value="Negotiating">Negotiating</option>
+              <option value="Ready to Award">Ready to Award</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Min. Bid Coverage Required</label>
+            <select class="modal-select" id="np-minBids">
+              <option value="2">2 bids (standard)</option>
+              <option value="3">3 bids</option>
+              <option value="1">1 bid (sole source)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 — Review -->
+      <div class="modal-step-panel" id="np-panel-3">
+        <div class="modal-section-title">Review Package Details</div>
+        <div class="modal-summary-grid" id="npSummaryGrid"></div>
+        <div id="npSummaryNotes" style="margin-top:14px;padding:12px 14px;background:var(--slate);border-radius:var(--radius);border:1px solid var(--border);font-size:13px;color:var(--text-secondary);line-height:1.6;display:none;"></div>
+        <div style="margin-top:16px;padding:12px 14px;background:var(--blue-light);border-radius:var(--radius);border:1px solid rgba(26,95,168,0.15);">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;">📋 What happens next</div>
+          <div style="font-size:12px;color:var(--blue);opacity:0.85;line-height:1.6;">The package will be added to the buyout log with the status you selected. You can then open it to add bids, set risks, update notes, and advance the contract workflow.</div>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <!-- Footer -->
+    <div class="modal-footer" id="npModalFooter">
+      <div class="modal-footer-left">
+        <button class="modal-btn ghost" id="npBtnBack" onclick="npGoBack()" style="display:none;">← Back</button>
+        <span style="font-size:11px;color:var(--text-muted);" id="npStepLabel">Step 1 of 3</span>
+      </div>
+      <div class="modal-footer-right">
+        <button class="modal-btn secondary" onclick="closeNewPackageModal()">Cancel</button>
+        <button class="modal-btn primary" id="npBtnNext" onclick="npGoNext()">Next →</button>
+      </div>
+    </div>
+
+  </div><!-- /modal-box -->
+</div>
+
+<!-- ============================================================
+     NEW PACKAGE MODAL — JavaScript
+============================================================ -->
+<script>
+(function() {
+  let npCurrentStep = 1;
+  const NP_TOTAL_STEPS = 3;
+
+  window.openNewPackageModal = function() {
+    npCurrentStep = 1;
+    resetNPForm();
+    npRenderStep(1);
+    document.getElementById('newPkgOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeNewPackageModal = function() {
+    document.getElementById('newPkgOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.handleOverlayClick = function(e) {
+    if (e.target === document.getElementById('newPkgOverlay')) closeNewPackageModal();
+  };
+
+  window.toggleModalToggle = function(toggleId, hiddenId) {
+    const btn = document.getElementById(toggleId);
+    const hidden = document.getElementById(hiddenId);
+    const label = document.getElementById(hiddenId + '-label');
+    const isOn = btn.classList.toggle('on');
+    hidden.value = isOn ? 'true' : 'false';
+    if (label) label.textContent = isOn ? 'Yes' : 'No';
+  };
+
+  function resetNPForm() {
+    ['np-name','np-csi','np-notes','np-rfpDate','np-bidDueDate'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    ['np-trade','np-project','np-pm','np-priority'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const today = new Date(); today.setDate(today.getDate() + 30);
+    const iso = today.toISOString().split('T')[0];
+    document.getElementById('np-dueDate').value = iso;
+    document.getElementById('np-onSiteDate').value = '';
+    document.getElementById('np-budget').value = '';
+    document.getElementById('np-risk').value = 'Medium';
+    document.getElementById('np-status').value = 'Not Started';
+    document.getElementById('np-procurement').value = 'Competitive Bid';
+    document.getElementById('np-minBids').value = '2';
+    // Reset toggles
+    ['np-longlead-toggle','np-urgent-toggle'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.remove('on');
+    });
+    ['np-longlead','np-urgent'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = 'false';
+    });
+    ['np-longlead-label','np-urgent-label'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'No';
+    });
+    // Clear errors
+    document.querySelectorAll('.modal-field.has-error').forEach(f => f.classList.remove('has-error'));
+    document.querySelectorAll('.modal-input.error, .modal-select.error').forEach(f => f.classList.remove('error'));
+  }
+
+  function npRenderStep(step) {
+    // panels
+    document.querySelectorAll('.modal-step-panel').forEach((p, i) => {
+      p.classList.toggle('active', i + 1 === step);
+    });
+    // step indicators
+    for (let i = 1; i <= NP_TOTAL_STEPS; i++) {
+      const ind = document.getElementById('np-step-ind-' + i);
+      if (!ind) continue;
+      ind.classList.remove('active','done');
+      if (i < step) ind.classList.add('done');
+      else if (i === step) ind.classList.add('active');
+    }
+    // step indicators — swap number to checkmark for done steps
+    for (let i = 1; i <= NP_TOTAL_STEPS; i++) {
+      const numEl = document.querySelector('#np-step-ind-' + i + ' .modal-step-num');
+      if (!numEl) continue;
+      if (i < step) numEl.textContent = '✓';
+      else numEl.textContent = String(i);
+    }
+    // footer buttons
+    const btnBack = document.getElementById('npBtnBack');
+    const btnNext = document.getElementById('npBtnNext');
+    const lbl = document.getElementById('npStepLabel');
+    btnBack.style.display = step > 1 ? '' : 'none';
+    lbl.textContent = `Step ${step} of ${NP_TOTAL_STEPS}`;
+    if (step === NP_TOTAL_STEPS) {
+      btnNext.textContent = '✓ Create Package';
+      btnNext.className = 'modal-btn success';
+      npBuildSummary();
+    } else {
+      btnNext.textContent = 'Next →';
+      btnNext.className = 'modal-btn primary';
+    }
+    // scroll to top
+    document.getElementById('npModalBody').scrollTop = 0;
+  }
+
+  function npValidateStep(step) {
+    const required = {
+      1: ['np-name','np-csi','np-trade','np-project','np-pm','np-priority'],
+      2: ['np-budget','np-dueDate'],
+      3: []
+    };
+    let valid = true;
+    (required[step] || []).forEach(id => {
+      const el = document.getElementById(id);
+      const field = document.getElementById('npf-' + id.replace('np-',''));
+      if (!el || !el.value.trim()) {
+        valid = false;
+        if (el) el.classList.add('error');
+        if (field) field.classList.add('has-error');
+      } else {
+        if (el) el.classList.remove('error');
+        if (field) field.classList.remove('has-error');
+      }
+    });
+    return valid;
+  }
+
+  window.npGoNext = function() {
+    if (!npValidateStep(npCurrentStep)) return;
+    if (npCurrentStep < NP_TOTAL_STEPS) {
+      npCurrentStep++;
+      npRenderStep(npCurrentStep);
+    } else {
+      npCreatePackage();
+    }
+  };
+
+  window.npGoBack = function() {
+    if (npCurrentStep > 1) {
+      npCurrentStep--;
+      npRenderStep(npCurrentStep);
+    }
+  };
+
+  function npBuildSummary() {
+    const name = document.getElementById('np-name').value;
+    const csi = document.getElementById('np-csi').value;
+    const trade = document.getElementById('np-trade').value;
+    const project = document.getElementById('np-project').value;
+    const pm = document.getElementById('np-pm').value;
+    const priority = document.getElementById('np-priority').value;
+    const risk = document.getElementById('np-risk').value;
+    const budget = document.getElementById('np-budget').value;
+    const dueDate = document.getElementById('np-dueDate').value;
+    const onSiteDate = document.getElementById('np-onSiteDate').value;
+    const status = document.getElementById('np-status').value;
+    const longLead = document.getElementById('np-longlead').value === 'true';
+    const urgent = document.getElementById('np-urgent').value === 'true';
+    const notes = document.getElementById('np-notes').value.trim();
+
+    const fmtBudget = budget ? '$' + Number(budget).toLocaleString() : '—';
+    const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+
+    const items = [
+      { label:'Package Name', value: name },
+      { label:'CSI Division', value: csi },
+      { label:'Trade', value: trade },
+      { label:'Project', value: project },
+      { label:'PM / Estimator', value: pm },
+      { label:'Priority', value: priority },
+      { label:'Risk Level', value: risk },
+      { label:'Status', value: status },
+      { label:'Budget', value: fmtBudget },
+      { label:'Target Award Date', value: fmtDate(dueDate) },
+      { label:'Needed On Site', value: fmtDate(onSiteDate) },
+      { label:'Flags', value: [longLead ? '⏳ Long Lead' : '', urgent ? '⚡ Urgent' : ''].filter(Boolean).join(' · ') || '—' },
+    ];
+
+    document.getElementById('npSummaryGrid').innerHTML = items.map(item => `
+      <div class="modal-summary-item">
+        <div class="modal-summary-label">${item.label}</div>
+        <div class="modal-summary-value">${item.value || '—'}</div>
+      </div>
+    `).join('');
+
+    const notesWrap = document.getElementById('npSummaryNotes');
+    if (notes) {
+      notesWrap.style.display = '';
+      notesWrap.innerHTML = '<strong style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);">Notes:</strong> ' + notes;
+    } else {
+      notesWrap.style.display = 'none';
+    }
+  }
+
+  function npCreatePackage() {
+    const name = document.getElementById('np-name').value.trim();
+    const csi = document.getElementById('np-csi').value.trim();
+    const trade = document.getElementById('np-trade').value;
+    const project = document.getElementById('np-project').value;
+    const pm = document.getElementById('np-pm').value;
+    const priority = document.getElementById('np-priority').value;
+    const risk = document.getElementById('np-risk').value;
+    const budget = Number(document.getElementById('np-budget').value) || 0;
+    const dueDate = document.getElementById('np-dueDate').value;
+    const onSiteDate = document.getElementById('np-onSiteDate').value;
+    const status = document.getElementById('np-status').value;
+    const longLead = document.getElementById('np-longlead').value === 'true';
+    const urgent = document.getElementById('np-urgent').value === 'true';
+    const notes = document.getElementById('np-notes').value.trim();
+
+    const newId = Math.max(...PACKAGES.map(p => p.id)) + 1;
+
+    const newPkg = {
+      id: newId,
+      name: name,
+      csi: csi,
+      project: project,
+      trade: trade,
+      pm: pm,
+      dueDate: dueDate,
+      onSiteDate: onSiteDate || null,
+      priority: priority,
+      status: status,
+      budget: budget,
+      lowBid: null,
+      selectedVendor: null,
+      awardAmount: null,
+      risk: risk,
+      longLead: longLead,
+      notes: notes || 'No notes added yet.',
+      contractStatus: 'Not Started',
+      coverageCount: 0,
+      bidsReceived: 0,
+      overdue: false,
+      urgent: urgent,
+      risks: [],
+      contractSteps: ['Verbal Award','Scope Confirm','Draft Contract','Sub Review','Executed'],
+      contractProgress: 0
+    };
+
+    PACKAGES.push(newPkg);
+    BIDS_DB[newId] = [];
+
+    // Refresh UI
+    renderTable();
+    renderKPI();
+    updateNavBadges();
+
+    // Update project filter options if new project (edge case)
+    const projectSelect = document.getElementById('globalProjectFilter');
+    const exists = Array.from(projectSelect.options).some(o => o.value === project);
+    if (!exists && project !== 'all') {
+      const opt = document.createElement('option');
+      opt.value = project; opt.textContent = project;
+      projectSelect.appendChild(opt);
+    }
+
+    // Show success screen inside modal
+    const body = document.getElementById('npModalBody');
+    body.innerHTML = `
+      <div class="modal-success-screen">
+        <div class="modal-success-icon">✓</div>
+        <div class="modal-success-title">Package Created!</div>
+        <div class="modal-success-pkg-name">${name}</div>
+        <div class="modal-success-sub">The package has been added to the buyout log. Open it from the table to add bids, set risks, and advance the contract workflow.</div>
+      </div>`;
+
+    // Replace footer
+    const footer = document.getElementById('npModalFooter');
+    footer.innerHTML = `
+      <div class="modal-footer-left"></div>
+      <div class="modal-footer-right">
+        <button class="modal-btn secondary" onclick="closeNewPackageModal()">Close</button>
+        <button class="modal-btn primary" onclick="closeNewPackageModal();selectPackage(${newId});">Open Package →</button>
+      </div>`;
+
+    // Hide step bar
+    document.getElementById('npStepBar').style.display = 'none';
+  }
+})();
+</script>
+
+<!-- ============================================================
+     EXPORT MODAL — styles
+============================================================ -->
+<style>
+  .exp-overlay {
+    position: fixed; inset: 0; background: rgba(15,25,35,0.55);
+    z-index: 600; display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .exp-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .exp-box {
+    background: var(--white); border-radius: 10px;
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 560px;
+    max-height: 90vh; display: flex; flex-direction: column;
+    transform: translateY(12px); transition: transform 0.2s;
+  }
+  .exp-overlay.open .exp-box { transform: translateY(0); }
+
+  .exp-head {
+    background: var(--navy); border-radius: 10px 10px 0 0;
+    padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .exp-head-title { font-size: 16px; font-weight: 700; color: white; }
+  .exp-head-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .exp-close {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.65); width: 34px; height: 34px; border-radius: 6px;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s; flex-shrink: 0;
+  }
+  .exp-close:hover { background: rgba(255,255,255,0.16); color: white; }
+
+  .exp-body { flex: 1; overflow-y: auto; padding: 20px 22px; }
+  .exp-body::-webkit-scrollbar { width: 5px; }
+  .exp-body::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+
+  .exp-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 10px; margin-top: 18px;
+  }
+  .exp-section-title:first-child { margin-top: 0; }
+
+  .exp-format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+  .exp-format-card {
+    border: 2px solid var(--border); border-radius: var(--radius);
+    padding: 12px 14px; cursor: pointer; transition: border-color 0.12s, background 0.12s;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .exp-format-card:hover { border-color: var(--border-dark); background: var(--slate); }
+  .exp-format-card.selected { border-color: var(--amber); background: var(--amber-light); }
+  .exp-format-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .exp-format-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .exp-format-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+  .exp-format-card.selected .exp-format-desc { color: #b5600a; }
+
+  .exp-check-list { display: flex; flex-direction: column; gap: 8px; }
+  .exp-check-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border: 1px solid var(--border);
+    border-radius: var(--radius); cursor: pointer;
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .exp-check-item:hover { background: var(--slate); border-color: var(--border-dark); }
+  .exp-check-item.checked { background: var(--green-light); border-color: rgba(26,122,74,0.3); }
+  .exp-check-box {
+    width: 16px; height: 16px; border-radius: 3px; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 10px; color: transparent; background: var(--white);
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .exp-check-item.checked .exp-check-box { background: var(--green); border-color: var(--green); color: white; }
+  .exp-check-label { font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .exp-check-sub { font-size: 11px; color: var(--text-muted); }
+  .exp-check-item.checked .exp-check-sub { color: var(--green); }
+
+  .exp-scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .exp-scope-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border: 1px solid var(--border);
+    border-radius: var(--radius); cursor: pointer; transition: background 0.1s, border-color 0.1s;
+  }
+  .exp-scope-item:hover { background: var(--slate); }
+  .exp-scope-item.checked { background: var(--blue-light); border-color: rgba(26,95,168,0.25); }
+  .exp-scope-check {
+    width: 14px; height: 14px; border-radius: 3px; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 9px; color: transparent; background: var(--white); transition: all 0.1s;
+  }
+  .exp-scope-item.checked .exp-scope-check { background: var(--blue); border-color: var(--blue); color: white; }
+  .exp-scope-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+
+  .exp-filter-note {
+    background: var(--slate); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 14px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+  }
+  .exp-filter-note strong { color: var(--text-primary); }
+
+  .exp-footer {
+    padding: 14px 22px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--slate); border-radius: 0 0 10px 10px;
+    flex-shrink: 0; gap: 10px;
+  }
+  .exp-count-badge {
+    font-size: 12px; color: var(--text-muted); background: var(--slate-2);
+    padding: 4px 10px; border-radius: 10px; font-family: var(--mono);
+  }
+  .exp-btn {
+    padding: 8px 18px; border-radius: var(--radius); font-family: var(--font);
+    font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: background 0.12s;
+  }
+  .exp-btn.secondary { background: var(--white); border: 1px solid var(--border); color: var(--text-secondary); }
+  .exp-btn.secondary:hover { border-color: var(--border-dark); color: var(--text-primary); }
+  .exp-btn.primary { background: var(--amber); color: white; }
+  .exp-btn.primary:hover { background: #d4720a; }
+  .exp-btn.primary:disabled { background: var(--slate-3); color: var(--text-muted); cursor: not-allowed; }
+
+  @media (max-width: 520px) {
+    .exp-format-grid { grid-template-columns: 1fr; }
+    .exp-scope-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<!-- ============================================================
+     EXPORT MODAL — HTML
+============================================================ -->
+<div class="exp-overlay" id="expOverlay" onclick="handleExpOverlayClick(event)">
+  <div class="exp-box">
+    <div class="exp-head">
+      <div>
+        <div class="exp-head-title">↓ Export Buyout Data</div>
+        <div class="exp-head-sub">Choose format and what to include</div>
+      </div>
+      <button class="exp-close" onclick="closeExportModal()">✕</button>
+    </div>
+
+    <div class="exp-body">
+
+      <!-- Format -->
+      <div class="exp-section-title">Export Format</div>
+      <div class="exp-format-grid">
+        <div class="exp-format-card selected" id="exp-fmt-csv" onclick="selectExpFormat('csv')">
+          <div class="exp-format-icon">📄</div>
+          <div>
+            <div class="exp-format-name">CSV</div>
+            <div class="exp-format-desc">Opens in Excel, Sheets, or any spreadsheet app</div>
+          </div>
+        </div>
+        <div class="exp-format-card" id="exp-fmt-json" onclick="selectExpFormat('json')">
+          <div class="exp-format-icon">{ }</div>
+          <div>
+            <div class="exp-format-name">JSON</div>
+            <div class="exp-format-desc">Full structured data for integrations or backup</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columns to include -->
+      <div class="exp-section-title">Columns to Include</div>
+      <div class="exp-scope-grid" id="expColGrid"></div>
+
+      <!-- Scope -->
+      <div class="exp-section-title">Packages to Export</div>
+      <div class="exp-check-list">
+        <div class="exp-check-item checked" id="exp-scope-current" onclick="toggleExpScope('current')">
+          <div class="exp-check-box">✓</div>
+          <div class="exp-check-label">Current View</div>
+          <div class="exp-check-sub" id="exp-scope-current-sub">— packages</div>
+        </div>
+        <div class="exp-check-item" id="exp-scope-all" onclick="toggleExpScope('all')">
+          <div class="exp-check-box">✓</div>
+          <div class="exp-check-label">All Packages</div>
+          <div class="exp-check-sub" id="exp-scope-all-sub">— packages total</div>
+        </div>
+      </div>
+
+      <!-- Active filter note -->
+      <div class="exp-filter-note" id="expFilterNote" style="margin-top:10px;display:none;"></div>
+
+    </div>
+
+    <div class="exp-footer">
+      <span class="exp-count-badge" id="expCountBadge">— rows</span>
+      <div style="display:flex;gap:8px;">
+        <button class="exp-btn secondary" onclick="closeExportModal()">Cancel</button>
+        <button class="exp-btn primary" id="expDownloadBtn" onclick="doExport()">↓ Download</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     EXPORT MODAL — JavaScript
+============================================================ -->
+<script>
+(function() {
+  let expFormat = 'csv';
+  let expScope = 'current';
+
+  const EXP_COLUMNS = [
+    { key:'name',           label:'Package Name',     default:true  },
+    { key:'csi',            label:'CSI Division',     default:true  },
+    { key:'project',        label:'Project',          default:true  },
+    { key:'trade',          label:'Trade',            default:true  },
+    { key:'pm',             label:'PM',               default:true  },
+    { key:'status',         label:'Status',           default:true  },
+    { key:'priority',       label:'Priority',         default:true  },
+    { key:'dueDate',        label:'Target Award Date',default:true  },
+    { key:'onSiteDate',     label:'On Site Date',     default:false },
+    { key:'budget',         label:'Budget ($)',       default:true  },
+    { key:'lowBid',         label:'Low Bid ($)',      default:true  },
+    { key:'awardAmount',    label:'Award Amount ($)', default:true  },
+    { key:'selectedVendor', label:'Recommended Vendor',default:true },
+    { key:'coverageCount',  label:'Bid Coverage',     default:true  },
+    { key:'bidsReceived',   label:'Bids Received',    default:false },
+    { key:'risk',           label:'Risk Level',       default:true  },
+    { key:'contractStatus', label:'Contract Status',  default:true  },
+    { key:'longLead',       label:'Long Lead',        default:false },
+    { key:'urgent',         label:'Urgent Flag',      default:false },
+    { key:'notes',          label:'Notes',            default:false },
+  ];
+
+  // track which cols are checked
+  const colChecked = {};
+  EXP_COLUMNS.forEach(c => { colChecked[c.key] = c.default; });
+
+  window.openExportModal = function() {
+    expFormat = 'csv';
+    expScope = 'current';
+    buildColGrid();
+    updateExpScope('current');
+    selectExpFormat('csv');
+    document.getElementById('expOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeExportModal = function() {
+    document.getElementById('expOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.handleExpOverlayClick = function(e) {
+    if (e.target === document.getElementById('expOverlay')) closeExportModal();
+  };
+
+  window.selectExpFormat = function(fmt) {
+    expFormat = fmt;
+    ['csv','json'].forEach(f => {
+      document.getElementById('exp-fmt-' + f).classList.toggle('selected', f === fmt);
+    });
+  };
+
+  window.toggleExpScope = function(scope) {
+    updateExpScope(scope);
+  };
+
+  function updateExpScope(scope) {
+    expScope = scope;
+    ['current','all'].forEach(s => {
+      const item = document.getElementById('exp-scope-' + s);
+      item.classList.toggle('checked', s === scope);
+    });
+
+    const currentPkgs = getFilteredPackages();
+    const allPkgs = PACKAGES;
+    document.getElementById('exp-scope-current-sub').textContent = currentPkgs.length + ' package' + (currentPkgs.length !== 1 ? 's' : '');
+    document.getElementById('exp-scope-all-sub').textContent = allPkgs.length + ' packages total';
+
+    const count = scope === 'current' ? currentPkgs.length : allPkgs.length;
+    document.getElementById('expCountBadge').textContent = count + ' row' + (count !== 1 ? 's' : '');
+
+    // Filter note
+    const note = document.getElementById('expFilterNote');
+    if (scope === 'current') {
+      const search = document.getElementById('searchInput').value;
+      const statusF = document.getElementById('filterStatus').value;
+      const priorityF = document.getElementById('filterPriority').value;
+      const pmF = document.getElementById('filterPM').value;
+      const riskF = document.getElementById('filterRisk').value;
+      const globalProject = document.getElementById('globalProjectFilter').value;
+      const activeFilters = [
+        globalProject !== 'all' ? 'Project: ' + globalProject : '',
+        statusF ? 'Status: ' + statusF : '',
+        priorityF ? 'Priority: ' + priorityF : '',
+        pmF ? 'PM: ' + pmF : '',
+        riskF ? 'Risk: ' + riskF : '',
+        search ? 'Search: "' + search + '"' : '',
+      ].filter(Boolean);
+      if (activeFilters.length) {
+        note.style.display = '';
+        note.innerHTML = '<strong>Active filters:</strong> ' + activeFilters.join(' · ');
+      } else {
+        note.style.display = 'none';
+      }
+    } else {
+      note.style.display = 'none';
+    }
+  }
+
+  function buildColGrid() {
+    const grid = document.getElementById('expColGrid');
+    grid.innerHTML = EXP_COLUMNS.map(col => `
+      <div class="exp-scope-item ${colChecked[col.key] ? 'checked' : ''}" id="expcol-${col.key}" onclick="toggleExpCol('${col.key}')">
+        <div class="exp-scope-check">${colChecked[col.key] ? '✓' : ''}</div>
+        <div class="exp-scope-label">${col.label}</div>
+      </div>
+    `).join('');
+  }
+
+  window.toggleExpCol = function(key) {
+    colChecked[key] = !colChecked[key];
+    const item = document.getElementById('expcol-' + key);
+    item.classList.toggle('checked', colChecked[key]);
+    item.querySelector('.exp-scope-check').textContent = colChecked[key] ? '✓' : '';
+  };
+
+  window.doExport = function() {
+    const pkgs = expScope === 'current' ? getFilteredPackages() : PACKAGES;
+    const cols = EXP_COLUMNS.filter(c => colChecked[c.key]);
+
+    if (!cols.length) { alert('Please select at least one column to export.'); return; }
+    if (!pkgs.length) { alert('No packages match the current selection.'); return; }
+
+    if (expFormat === 'csv') exportCSV(pkgs, cols);
+    else exportJSON(pkgs, cols);
+  };
+
+  function fmtVal(pkg, key) {
+    const v = pkg[key];
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    return String(v);
+  }
+
+  function exportCSV(pkgs, cols) {
+    const escape = v => {
+      const s = String(v === null || v === undefined ? '' : v);
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+    const header = cols.map(c => escape(c.label)).join(',');
+    const rows = pkgs.map(pkg =>
+      cols.map(c => escape(fmtVal(pkg, c.key))).join(',')
+    );
+    const csv = [header, ...rows].join('\r\n');
+    downloadFile(csv, 'buyout-export-' + today() + '.csv', 'text/csv;charset=utf-8;');
+  }
+
+  function exportJSON(pkgs, cols) {
+    const data = pkgs.map(pkg => {
+      const obj = {};
+      cols.forEach(c => { obj[c.key] = pkg[c.key] !== undefined ? pkg[c.key] : null; });
+      return obj;
+    });
+    const json = JSON.stringify({ exportedAt: new Date().toISOString(), count: data.length, packages: data }, null, 2);
+    downloadFile(json, 'buyout-export-' + today() + '.json', 'application/json');
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    closeExportModal();
+  }
+
+  function today() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+})();
+</script>
+
+<!-- ============================================================
+     AUTH + PROFILE MODALS — styles
+============================================================ -->
+<style>
+  /* ── Shared auth overlay ── */
+  .auth-overlay {
+    position: fixed; inset: 0; z-index: 700;
+    background: linear-gradient(135deg, #0f1923 0%, #1e3049 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .auth-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .auth-box {
+    background: var(--white); border-radius: 12px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    width: 100%; max-width: 420px;
+    transform: translateY(16px); transition: transform 0.25s;
+    overflow: hidden;
+  }
+  .auth-overlay.open .auth-box { transform: translateY(0); }
+
+  .auth-brand {
+    background: var(--navy); padding: 28px 32px 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .auth-logo-mark {
+    width: 44px; height: 44px; background: var(--amber); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: white; letter-spacing: -1px;
+  }
+  .auth-brand-name { font-size: 16px; font-weight: 700; color: white; }
+  .auth-brand-sub  { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: -6px; }
+
+  .auth-body { padding: 28px 32px; }
+  .auth-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .auth-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+
+  .auth-field { margin-bottom: 14px; }
+  .auth-field label {
+    display: block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-muted); margin-bottom: 5px;
+  }
+  .auth-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 10px 12px; font-family: var(--font); font-size: 13px;
+    color: var(--text-primary); background: var(--white); outline: none;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .auth-input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(232,130,12,0.1); }
+  .auth-input.error { border-color: var(--red); }
+  .auth-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .auth-error {
+    font-size: 12px; color: var(--red); background: var(--red-light);
+    border: 1px solid rgba(192,57,43,0.2); border-radius: var(--radius-sm);
+    padding: 8px 12px; margin-bottom: 14px; display: none; line-height: 1.5;
+  }
+  .auth-error.show { display: block; }
+  .auth-success {
+    font-size: 12px; color: var(--green); background: var(--green-light);
+    border: 1px solid rgba(26,122,74,0.2); border-radius: var(--radius-sm);
+    padding: 8px 12px; margin-bottom: 14px; display: none; line-height: 1.5;
+  }
+  .auth-success.show { display: block; }
+
+  .auth-btn {
+    width: 100%; padding: 11px; background: var(--amber); color: white;
+    border: none; border-radius: var(--radius); font-family: var(--font);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: background 0.12s; margin-top: 4px;
+  }
+  .auth-btn:hover { background: #d4720a; }
+  .auth-btn:disabled { background: var(--slate-3); color: var(--text-muted); cursor: not-allowed; }
+
+  .auth-switch {
+    text-align: center; margin-top: 18px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .auth-switch a {
+    color: var(--amber); font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .auth-switch a:hover { text-decoration: underline; }
+
+  .auth-domain-badge {
+    background: var(--blue-light); border: 1px solid rgba(26,95,168,0.18);
+    border-radius: var(--radius); padding: 8px 12px; margin-bottom: 18px;
+    font-size: 12px; color: var(--blue); line-height: 1.5;
+  }
+  .auth-domain-badge strong { color: var(--navy); }
+
+  /* ── Profile modal ── */
+  .profile-overlay {
+    position: fixed; inset: 0; z-index: 600;
+    background: rgba(15,25,35,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .profile-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .profile-box {
+    background: var(--white); border-radius: 10px;
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 480px;
+    max-height: 90vh; display: flex; flex-direction: column;
+    transform: translateY(10px); transition: transform 0.2s; overflow: hidden;
+  }
+  .profile-overlay.open .profile-box { transform: translateY(0); }
+
+  .profile-head {
+    background: var(--navy); padding: 18px 22px;
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .profile-head-title { font-size: 15px; font-weight: 700; color: white; }
+  .profile-head-sub   { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .profile-close {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6); width: 30px; height: 30px; border-radius: 6px;
+    cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s;
+  }
+  .profile-close:hover { background: rgba(255,255,255,0.16); color: white; }
+
+  .profile-tabs {
+    display: flex; border-bottom: 1px solid var(--border); background: var(--slate); flex-shrink: 0;
+  }
+  .ptab {
+    flex: 1; text-align: center; padding: 10px; font-size: 12px; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .ptab:hover { color: var(--text-primary); }
+  .ptab.active { color: var(--amber); border-bottom-color: var(--amber); font-weight: 700; }
+
+  .profile-body { flex: 1; overflow-y: auto; padding: 22px; }
+  .profile-body::-webkit-scrollbar { width: 5px; }
+  .profile-body::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+
+  .profile-avatar-row {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 22px;
+    padding: 16px; background: var(--slate); border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .profile-avatar-big {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--navy-3); color: white;
+    font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .profile-avatar-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .profile-avatar-email { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .profile-avatar-role {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    background: var(--amber-light); color: #b5600a; border: 1px solid var(--amber-border);
+    display: inline-block; margin-top: 4px;
+  }
+
+  .pf-section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-muted); margin-bottom: 10px; margin-top: 18px;
+  }
+  .pf-section-title:first-child { margin-top: 0; }
+
+  .pf-field { margin-bottom: 12px; }
+  .pf-field label {
+    display: block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-muted); margin-bottom: 5px;
+  }
+  .pf-input, .pf-select {
+    width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 9px 12px; font-family: var(--font); font-size: 13px;
+    color: var(--text-primary); background: var(--white); outline: none;
+    transition: border-color 0.12s;
+  }
+  .pf-input:focus, .pf-select:focus { border-color: var(--amber); }
+  .pf-input:read-only { background: var(--slate); color: var(--text-muted); cursor: not-allowed; }
+  .pf-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2398aab8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+  }
+
+  .pf-info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+  }
+  .pf-info-row:last-child { border-bottom: none; }
+  .pf-info-label { font-size: 12px; color: var(--text-muted); }
+  .pf-info-val   { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+
+  .profile-footer {
+    padding: 14px 22px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--slate); flex-shrink: 0;
+  }
+  .pf-btn {
+    padding: 8px 18px; border-radius: var(--radius); font-family: var(--font);
+    font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: background 0.12s;
+  }
+  .pf-btn.secondary { background: var(--white); border: 1px solid var(--border); color: var(--text-secondary); }
+  .pf-btn.secondary:hover { border-color: var(--border-dark); color: var(--text-primary); }
+  .pf-btn.primary { background: var(--amber); color: white; }
+  .pf-btn.primary:hover { background: #d4720a; }
+  .pf-btn.danger { background: var(--white); border: 1px solid var(--red); color: var(--red); }
+  .pf-btn.danger:hover { background: var(--red-light); }
+
+  /* Change password modal */
+  .cp-overlay {
+    position: fixed; inset: 0; z-index: 650;
+    background: rgba(15,25,35,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .cp-overlay.open { opacity: 1; pointer-events: auto; }
+  .cp-box {
+    background: var(--white); border-radius: 10px;
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 400px;
+    transform: translateY(10px); transition: transform 0.2s; overflow: hidden;
+  }
+  .cp-overlay.open .cp-box { transform: translateY(0); }
+  .cp-head {
+    background: var(--navy); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cp-head-title { font-size: 15px; font-weight: 700; color: white; }
+  .cp-close {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6); width: 30px; height: 30px; border-radius: 6px;
+    cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .cp-close:hover { background: rgba(255,255,255,0.16); color: white; }
+  .cp-body { padding: 22px; }
+  .cp-field { margin-bottom: 14px; }
+  .cp-field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px; }
+  .cp-input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 9px 12px; font-family: var(--font); font-size: 13px; color: var(--text-primary); outline: none; transition: border-color 0.12s; }
+  .cp-input:focus { border-color: var(--amber); }
+  .cp-input.error { border-color: var(--red); }
+  .cp-strength { height: 4px; border-radius: 2px; margin-top: 6px; background: var(--slate-2); overflow: hidden; }
+  .cp-strength-bar { height: 100%; border-radius: 2px; width: 0%; transition: width 0.2s, background 0.2s; }
+  .cp-strength-label { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .cp-error { font-size: 12px; color: var(--red); background: var(--red-light); border: 1px solid rgba(192,57,43,0.2); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 12px; display: none; }
+  .cp-error.show { display: block; }
+  .cp-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: var(--slate); }
+</style>
+
+<!-- ============================================================
+     AUTH MODAL — HTML (login / signup)
+============================================================ -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <div class="auth-logo-mark">BC</div>
+      <div class="auth-brand-name">Boulder Construction</div>
+      <div class="auth-brand-sub">Buyout Command Center</div>
+    </div>
+    <div class="auth-body">
+      <!-- LOGIN PANEL -->
+      <div id="authLoginPanel">
+        <div class="auth-title">Welcome back</div>
+        <div class="auth-subtitle">Sign in to your account to continue</div>
+        <div class="auth-domain-badge">
+          🏢 Access restricted to <strong>@boulderconstruction.com</strong> email addresses only.
+        </div>
+        <div class="auth-error" id="loginError"></div>
+        <div class="auth-field">
+          <label>Email Address</label>
+          <input class="auth-input" id="loginEmail" type="email" placeholder="you@boulderconstruction.com" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+        <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+        <div class="auth-switch">Don't have an account? <a onclick="openAuthModal('signup')">Create one</a></div>
+      </div>
+
+      <!-- SIGNUP PANEL -->
+      <div id="authSignupPanel" style="display:none;">
+        <div class="auth-title">Create account</div>
+        <div class="auth-subtitle">Join the Boulder Construction team</div>
+        <div class="auth-domain-badge">
+          🏢 Only <strong>@boulderconstruction.com</strong> email addresses are accepted.
+        </div>
+        <div class="auth-error" id="signupError"></div>
+        <div class="auth-success" id="signupSuccess"></div>
+        <div class="auth-field">
+          <label>Full Name</label>
+          <input class="auth-input" id="signupName" type="text" placeholder="e.g. Jay Patel" autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <label>Email Address</label>
+          <input class="auth-input" id="signupEmail" type="email" placeholder="you@boulderconstruction.com">
+        </div>
+        <div class="auth-field">
+          <label>Role / Title</label>
+          <select class="auth-input" id="signupRole">
+            <option value="">— Select your role —</option>
+            <option>Project Manager</option>
+            <option>Estimator</option>
+            <option>Operations</option>
+            <option>Procurement</option>
+            <option>Executive</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" id="signupPassword" type="password" placeholder="Min. 6 characters">
+        </div>
+        <div class="auth-field">
+          <label>Confirm Password</label>
+          <input class="auth-input" id="signupPassword2" type="password" placeholder="Re-enter password">
+        </div>
+        <button class="auth-btn" onclick="doSignup()">Create Account →</button>
+        <div class="auth-switch">Already have an account? <a onclick="openAuthModal('login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PROFILE MODAL — HTML
+============================================================ -->
+<div class="profile-overlay" id="profileOverlay" onclick="handleProfileOverlayClick(event)">
+  <div class="profile-box">
+    <div class="profile-head">
+      <div>
+        <div class="profile-head-title">My Profile</div>
+        <div class="profile-head-sub">Manage your account details</div>
+      </div>
+      <button class="profile-close" onclick="closeProfileModal()">✕</button>
+    </div>
+    <div class="profile-tabs">
+      <div class="ptab active" id="ptab-info"   onclick="switchPTab('info')">Account Info</div>
+      <div class="ptab"        id="ptab-prefs"  onclick="switchPTab('prefs')">Preferences</div>
+      <div class="ptab"        id="ptab-activity" onclick="switchPTab('activity')">Activity</div>
+    </div>
+    <div class="profile-body" id="profileBody"></div>
+    <div class="profile-footer">
+      <button class="pf-btn danger" onclick="doSignOut();closeProfileModal();">↩ Sign Out</button>
+      <div style="display:flex;gap:8px;">
+        <button class="pf-btn secondary" onclick="closeProfileModal()">Close</button>
+        <button class="pf-btn primary" id="pfSaveBtn" onclick="saveProfile()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CHANGE PASSWORD MODAL — HTML
+============================================================ -->
+<div class="cp-overlay" id="cpOverlay" onclick="handleCPOverlayClick(event)">
+  <div class="cp-box">
+    <div class="cp-head">
+      <div class="cp-head-title">🔒 Change Password</div>
+      <button class="cp-close" onclick="closeCPModal()">✕</button>
+    </div>
+    <div class="cp-body">
+      <div class="cp-error" id="cpError"></div>
+      <div class="cp-field">
+        <label>Current Password</label>
+        <input class="cp-input" id="cpCurrent" type="password" placeholder="Your current password">
+      </div>
+      <div class="cp-field">
+        <label>New Password</label>
+        <input class="cp-input" id="cpNew" type="password" placeholder="Min. 6 characters" oninput="checkCPStrength()">
+        <div class="cp-strength"><div class="cp-strength-bar" id="cpStrengthBar"></div></div>
+        <div class="cp-strength-label" id="cpStrengthLabel"></div>
+      </div>
+      <div class="cp-field">
+        <label>Confirm New Password</label>
+        <input class="cp-input" id="cpConfirm" type="password" placeholder="Re-enter new password">
+      </div>
+    </div>
+    <div class="cp-footer">
+      <button class="pf-btn secondary" onclick="closeCPModal()">Cancel</button>
+      <button class="pf-btn primary" onclick="doChangePassword()">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     AUTH + PROFILE MODAL — JavaScript
+============================================================ -->
+<script>
+(function() {
+  const DOMAIN = '@boulderconstruction.com';
+
+  // ── simple in-session user store (no real backend) ─────────────────────────
+  function getUsers() {
+    try { return JSON.parse(sessionStorage.getItem('bc_users') || '[]'); } catch(e) { return []; }
+  }
+  function saveUsers(arr) { sessionStorage.setItem('bc_users', JSON.stringify(arr)); }
+  function findUser(email) { return getUsers().find(u => u.email.toLowerCase() === email.toLowerCase()); }
+
+  // ── OPEN / CLOSE AUTH ──────────────────────────────────────────────────────
+  window.openAuthModal = function(mode) {
+    document.getElementById('authOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showAuthPanel(mode);
+  };
+  function closeAuthModal() {
+    document.getElementById('authOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function showAuthPanel(mode) {
+    document.getElementById('authLoginPanel').style.display  = mode === 'login'  ? '' : 'none';
+    document.getElementById('authSignupPanel').style.display = mode === 'signup' ? '' : 'none';
+    clearAuthErrors();
+  }
+  function clearAuthErrors() {
+    ['loginError','signupError','signupSuccess'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.remove('show'); el.textContent = ''; }
+    });
+  }
+  window.openAuthModal = window.openAuthModal;
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────────
+  window.doLogin = function() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const err   = document.getElementById('loginError');
+
+    if (!email || !pass) { showAuthErr(err, 'Please fill in all fields.'); return; }
+    if (!email.toLowerCase().endsWith(DOMAIN)) {
+      showAuthErr(err, 'Access denied. Only ' + DOMAIN + ' email addresses are allowed.'); return;
+    }
+
+    const user = findUser(email);
+    if (!user) { showAuthErr(err, 'No account found for this email. Please sign up first.'); return; }
+    if (user.password !== pass) { showAuthErr(err, 'Incorrect password. Please try again.'); return; }
+
+    setCurrentUser(user);
+    closeAuthModal();
+    updateHeaderAvatar();
+  };
+
+  // ── SIGNUP ────────────────────────────────────────────────────────────────
+  window.doSignup = function() {
+    const name  = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const role  = document.getElementById('signupRole').value;
+    const pass  = document.getElementById('signupPassword').value;
+    const pass2 = document.getElementById('signupPassword2').value;
+    const err   = document.getElementById('signupError');
+    const ok    = document.getElementById('signupSuccess');
+
+    if (!name || !email || !role || !pass || !pass2) { showAuthErr(err, 'Please fill in all fields.'); return; }
+    if (!email.toLowerCase().endsWith(DOMAIN)) {
+      showAuthErr(err, 'Only ' + DOMAIN + ' email addresses are accepted.'); return;
+    }
+    if (pass.length < 6) { showAuthErr(err, 'Password must be at least 6 characters.'); return; }
+    if (pass !== pass2)  { showAuthErr(err, 'Passwords do not match.'); return; }
+    if (findUser(email)) { showAuthErr(err, 'An account with this email already exists.'); return; }
+
+    const newUser = { name, email, role, password: pass, joined: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) };
+    const users = getUsers();
+    users.push(newUser);
+    saveUsers(users);
+
+    err.classList.remove('show');
+    ok.textContent = '✓ Account created! You can now sign in.';
+    ok.classList.add('show');
+    setTimeout(() => openAuthModal('login'), 1800);
+  };
+
+  function showAuthErr(el, msg) { el.textContent = msg; el.classList.add('show'); }
+
+  // keyboard enter support
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const overlay = document.getElementById('authOverlay');
+    if (!overlay.classList.contains('open')) return;
+    const loginPanel = document.getElementById('authLoginPanel');
+    if (loginPanel.style.display !== 'none') doLogin();
+    else doSignup();
+  });
+
+  // ── PROFILE MODAL ─────────────────────────────────────────────────────────
+  let activePTab = 'info';
+
+  window.openProfileModal = function() {
+    document.getElementById('avatarMenu').classList.add('hidden');
+    activePTab = 'info';
+    renderProfileBody();
+    document.getElementById('profileOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    switchPTab('info');
+  };
+  window.closeProfileModal = function() {
+    document.getElementById('profileOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.handleProfileOverlayClick = function(e) {
+    if (e.target === document.getElementById('profileOverlay')) closeProfileModal();
+  };
+  window.switchPTab = function(tab) {
+    activePTab = tab;
+    document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+    const el = document.getElementById('ptab-' + tab);
+    if (el) el.classList.add('active');
+    const saveBtn = document.getElementById('pfSaveBtn');
+    if (saveBtn) saveBtn.style.display = tab === 'info' ? '' : 'none';
+    renderProfileBody();
+  };
+
+  function renderProfileBody() {
+    const u = getCurrentUser();
+    if (!u) return;
+    const ini = getInitials(u.name);
+    const body = document.getElementById('profileBody');
+
+    if (activePTab === 'info') {
+      body.innerHTML = \`
+        <div class="profile-avatar-row">
+          <div class="profile-avatar-big">\${ini}</div>
+          <div>
+            <div class="profile-avatar-name">\${u.name}</div>
+            <div class="profile-avatar-email">\${u.email}</div>
+            <div class="profile-avatar-role">\${u.role}</div>
+          </div>
+        </div>
+        <div class="pf-section-title">Personal Information</div>
+        <div class="pf-field"><label>Full Name</label><input class="pf-input" id="pfName" value="\${u.name}"></div>
+        <div class="pf-field"><label>Email Address</label><input class="pf-input" id="pfEmail" value="\${u.email}" readonly></div>
+        <div class="pf-field">
+          <label>Role / Title</label>
+          <select class="pf-select" id="pfRole">
+            \${['Project Manager','Estimator','Operations','Procurement','Executive','Other'].map(r =>
+              \`<option \${u.role === r ? 'selected' : ''}>\${r}</option>\`).join('')}
+          </select>
+        </div>
+        <div class="pf-section-title">Security</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Password</div>
+            <div style="font-size:11px;color:var(--text-muted);">Update your login password</div>
+          </div>
+          <button class="pf-btn secondary" onclick="closeProfileModal();openChangePasswordModal();" style="font-size:12px;padding:6px 12px;">Change →</button>
+        </div>
+      \`;
+    } else if (activePTab === 'prefs') {
+      body.innerHTML = \`
+        <div class="pf-section-title">Notifications</div>
+        \${[
+          ['Email alerts for overdue packages','pref_overdue','true'],
+          ['Daily digest summary','pref_digest','false'],
+          ['Bid coverage warnings','pref_bids','true'],
+        ].map(([label, key, def]) => {
+          const val = (u.prefs && u.prefs[key] !== undefined) ? u.prefs[key] : (def === 'true');
+          return \`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="font-size:13px;color:var(--text-primary);">\${label}</div>
+            <button class="modal-toggle \${val ? 'on' : ''}" id="pref-\${key}" onclick="togglePref(this,'\${key}')"></button>
+          </div>\`;
+        }).join('')}
+        <div class="pf-section-title" style="margin-top:16px;">Display</div>
+        <div class="pf-field">
+          <label>Default Project View</label>
+          <select class="pf-select">
+            <option>All Projects</option>
+            <option>Kimpton Plano</option>
+            <option>Guestroom Tower</option>
+            <option>Podium Lobby</option>
+          </select>
+        </div>
+      \`;
+    } else if (activePTab === 'activity') {
+      body.innerHTML = \`
+        <div class="pf-section-title">Account Details</div>
+        <div class="pf-info-row"><span class="pf-info-label">Member since</span><span class="pf-info-val">\${u.joined || 'N/A'}</span></div>
+        <div class="pf-info-row"><span class="pf-info-label">Email domain</span><span class="pf-info-val">@boulderconstruction.com</span></div>
+        <div class="pf-info-row"><span class="pf-info-label">Role</span><span class="pf-info-val">\${u.role}</span></div>
+        <div class="pf-info-row"><span class="pf-info-label">Account status</span><span class="pf-info-val" style="color:var(--green);">✓ Active</span></div>
+        <div class="pf-section-title" style="margin-top:16px;">Recent Actions</div>
+        \${['Signed in','Viewed buyout log','Exported data'].map(a =>
+          \`<div class="pf-info-row"><span class="pf-info-label">📋 \${a}</span><span class="pf-info-val" style="color:var(--text-muted);font-weight:400;">Just now</span></div>\`
+        ).join('')}
+        <div style="margin-top:20px;padding:12px;background:var(--red-light);border:1px solid rgba(192,57,43,0.2);border-radius:var(--radius);">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px;">Danger Zone</div>
+          <div style="font-size:12px;color:var(--red);opacity:0.8;margin-bottom:10px;">Sign out from all sessions or delete your account.</div>
+          <button class="pf-btn danger" onclick="doSignOut();closeProfileModal();" style="font-size:12px;padding:6px 14px;">Sign Out →</button>
+        </div>
+      \`;
+    }
+  }
+
+  window.saveProfile = function() {
+    const u = getCurrentUser();
+    if (!u) return;
+    const nameEl = document.getElementById('pfName');
+    const roleEl = document.getElementById('pfRole');
+    if (nameEl && nameEl.value.trim()) u.name = nameEl.value.trim();
+    if (roleEl && roleEl.value) u.role = roleEl.value;
+    // update in store
+    const users = getUsers();
+    const idx = users.findIndex(x => x.email === u.email);
+    if (idx >= 0) { users[idx] = u; saveUsers(users); }
+    setCurrentUser(u);
+    updateHeaderAvatar();
+    closeProfileModal();
+  };
+
+  window.togglePref = function(btn, key) {
+    btn.classList.toggle('on');
+    const u = getCurrentUser();
+    if (!u) return;
+    if (!u.prefs) u.prefs = {};
+    u.prefs[key] = btn.classList.contains('on');
+    setCurrentUser(u);
+  };
+
+  // ── CHANGE PASSWORD MODAL ─────────────────────────────────────────────────
+  window.openChangePasswordModal = function() {
+    document.getElementById('avatarMenu').classList.add('hidden');
+    ['cpCurrent','cpNew','cpConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('cpError').classList.remove('show');
+    document.getElementById('cpStrengthBar').style.width = '0%';
+    document.getElementById('cpStrengthLabel').textContent = '';
+    document.getElementById('cpOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeCPModal = function() {
+    document.getElementById('cpOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.handleCPOverlayClick = function(e) {
+    if (e.target === document.getElementById('cpOverlay')) closeCPModal();
+  };
+  window.checkCPStrength = function() {
+    const val = document.getElementById('cpNew').value;
+    const bar = document.getElementById('cpStrengthBar');
+    const lbl = document.getElementById('cpStrengthLabel');
+    let score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { w:'0%',   bg:'var(--border)',  label:'' },
+      { w:'25%',  bg:'var(--red)',     label:'Weak' },
+      { w:'50%',  bg:'var(--amber)',   label:'Fair' },
+      { w:'75%',  bg:'#3b82f6',        label:'Good' },
+      { w:'100%', bg:'var(--green)',   label:'Strong' },
+    ];
+    const lvl = levels[Math.min(score, 4)];
+    bar.style.width = lvl.w; bar.style.background = lvl.bg; lbl.textContent = lvl.label;
+  };
+  window.doChangePassword = function() {
+    const u    = getCurrentUser();
+    const curr = document.getElementById('cpCurrent').value;
+    const nw   = document.getElementById('cpNew').value;
+    const conf = document.getElementById('cpConfirm').value;
+    const err  = document.getElementById('cpError');
+
+    if (!curr || !nw || !conf) { err.textContent = 'Please fill in all fields.'; err.classList.add('show'); return; }
+    if (u.password !== curr)   { err.textContent = 'Current password is incorrect.'; err.classList.add('show'); return; }
+    if (nw.length < 6)         { err.textContent = 'New password must be at least 6 characters.'; err.classList.add('show'); return; }
+    if (nw !== conf)           { err.textContent = 'New passwords do not match.'; err.classList.add('show'); return; }
+
+    u.password = nw;
+    const users = getUsers();
+    const idx = users.findIndex(x => x.email === u.email);
+    if (idx >= 0) { users[idx] = u; saveUsers(users); }
+    setCurrentUser(u);
+    closeCPModal();
+    alert('Password updated successfully!');
+  };
+})();
+</script>
+</body>
+</html>
